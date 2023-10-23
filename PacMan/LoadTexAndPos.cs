@@ -26,6 +26,7 @@ namespace PacMan
             WallTex = game.Content.Load<Texture2D>("wall");
         }
 
+        //Laddar in kartan
         public void LoadMap()
         {
             Sr = new StreamReader("map.txt");
