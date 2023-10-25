@@ -7,10 +7,12 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 namespace PacMan
 {
-    internal class BaseVariables
+    internal abstract class Characters
     {
         internal Texture2D Tex;
         internal Vector2 Pos;
 
+        public abstract void Update();
+        public abstract void Draw();
     }
 }

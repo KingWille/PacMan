@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PacMan
 {
-    internal class PlayerMovement
+    internal class EnemyController
     {
     }
 }

@@ -10,6 +10,7 @@ namespace PacMan
 
         internal SpriteBatch _spriteBatch;
         internal LoadTexAndPos loadTexAndPos;
+        internal Tiles[,] TilesArray;
 
         internal enum GameState
         {
@@ -25,13 +26,6 @@ namespace PacMan
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-
-            loadTexAndPos = new LoadTexAndPos(this);
-
-            loadTexAndPos.LoadMap();
-
-            _graphics.PreferredBackBufferWidth = loadTexAndPos.Mapper[0].Length;
-            _graphics.PreferredBackBufferHeight = loadTexAndPos.Mapper.Count;
         }
 
         protected override void Initialize()
@@ -43,7 +37,16 @@ namespace PacMan
 
         protected override void LoadContent()
         {
+            state = GameState.game;
             _spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            loadTexAndPos = new LoadTexAndPos(this);
+
+            loadTexAndPos.LoadMap(this);
+
+            _graphics.PreferredBackBufferWidth = TilesArray.GetLength(1) * loadTexAndPos.tileSize * 2;
+            _graphics.PreferredBackBufferHeight = TilesArray.GetLength(0) * loadTexAndPos.tileSize * 2;
+            _graphics.ApplyChanges();
 
             // TODO: use this.Content to load your game content here
         }
@@ -57,12 +60,16 @@ namespace PacMan
             switch(state)
             {
                 case GameState.start:
+                    GameStateHandler.UpdateStart();
                     break;
                 case GameState.game:
+                    GameStateHandler.UpdateGame();
                     break;
                 case GameState.win:
+                    GameStateHandler.UpdateWin();
                     break;
                 case GameState.lose:
+                    GameStateHandler.UpdateLoss();
                     break;
             }
 
@@ -71,26 +78,23 @@ namespace PacMan
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
             _spriteBatch.Begin(SpriteSortMode.FrontToBack, null);
 
             switch (state)
             {
                 case GameState.start:
-                    for (int i = 0; i < loadTexAndPos.TilesArray.GetLength(0); i++)
-                    {
-                        for (int j = 0; i < loadTexAndPos.TilesArray.GetLength(1); j++)
-                        {
-                            loadTexAndPos.TilesArray[i, j].Draw(this);
-                        }
-                    }
-                            break;
+                    GameStateHandler.DrawStart();
+                    break;
                 case GameState.game:
+                    GameStateHandler.DrawGame(this);
                     break;
                 case GameState.win:
+                    GameStateHandler.DrawWin();
                     break;
                 case GameState.lose:
+                    GameStateHandler.DrawLoss();
                     break;
             }
 
