@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,11 +9,11 @@ namespace PacMan
 {
     internal static class GameStateHandler
     {
-        public static void UpdateGame()
+        public static void UpdateGame(Game1 game, GameTime gameTime)
         {
-
+            game.player.Update(gameTime);
         }
-        public static void UpdateWin()
+        public static void UpdateWin(Game1 game, GameTime gameTime)
         {
 
         }
@@ -31,9 +32,11 @@ namespace PacMan
             {
                 for (int j = 0; j < game.TilesArray.GetLength(1); j++)
                 {
-                    game.TilesArray[i, j].Draw(game);
+                    game.TilesArray[i, j].Draw(game._spriteBatch);
                 }
             }
+
+            game.player.Draw(game._spriteBatch);
         }
         public static void DrawWin()
         {

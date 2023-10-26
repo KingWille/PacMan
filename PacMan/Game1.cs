@@ -12,6 +12,8 @@ namespace PacMan
         internal LoadTexAndPos loadTexAndPos;
         internal Tiles[,] TilesArray;
 
+        internal Player player;
+
         internal enum GameState
         {
             start,
@@ -43,10 +45,13 @@ namespace PacMan
             loadTexAndPos = new LoadTexAndPos(this);
 
             loadTexAndPos.LoadMap(this);
+            loadTexAndPos.LoadPlayerSpritesAndPos(TilesArray);
 
-            _graphics.PreferredBackBufferWidth = TilesArray.GetLength(1) * loadTexAndPos.tileSize * 2;
-            _graphics.PreferredBackBufferHeight = TilesArray.GetLength(0) * loadTexAndPos.tileSize * 2;
+            _graphics.PreferredBackBufferWidth = TilesArray.GetLength(1) * loadTexAndPos.TileSize * 2;
+            _graphics.PreferredBackBufferHeight = TilesArray.GetLength(0) * loadTexAndPos.TileSize * 2;
             _graphics.ApplyChanges();
+
+            player = new Player(loadTexAndPos.PlayerStartPos, loadTexAndPos.TileSize, loadTexAndPos.PlayerTex, loadTexAndPos.PlayerSprites[0], TilesArray);
 
             // TODO: use this.Content to load your game content here
         }
@@ -63,10 +68,10 @@ namespace PacMan
                     GameStateHandler.UpdateStart();
                     break;
                 case GameState.game:
-                    GameStateHandler.UpdateGame();
+                    GameStateHandler.UpdateGame(this, gameTime);
                     break;
                 case GameState.win:
-                    GameStateHandler.UpdateWin();
+                    GameStateHandler.UpdateWin(this, gameTime);
                     break;
                 case GameState.lose:
                     GameStateHandler.UpdateLoss();

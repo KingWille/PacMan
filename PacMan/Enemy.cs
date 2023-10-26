@@ -10,20 +10,16 @@ namespace PacMan
 {
     internal class Enemy : Characters
     {
-        private PlayerController Controls;
         public Enemy(Texture2D tex, Vector2 pos)
         {
-            this.Tex = tex;
             this.Pos = pos;
 
-            Controls = new PlayerController();
-
         }
-        public override void Update()
+        public override void Update(GameTime gameTime)
         {
             
         }
-        public override void Draw()
+        public override void Draw(SpriteBatch sb)
         {
             
         }

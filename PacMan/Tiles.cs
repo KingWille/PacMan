@@ -11,18 +11,34 @@ namespace PacMan
     internal class Tiles
     {
         private Texture2D Tex;
-        private Vector2 Pos;
-        private Rectangle Rect;
+        //0 = up, 1 = right, 2 = down, 3 = left
+        internal Dictionary<int, bool> AllowedDirections;
+        internal Vector2 Pos;
+        internal Rectangle Rect;
 
         internal bool Empty;
         internal int TileScale;
-        public Tiles(Texture2D tex, Vector2 pos, Rectangle rect)
+        public Tiles(Texture2D tex, Vector2 pos, Rectangle rect, bool[] boolArray)
         {
             Tex = tex;
             Pos = pos;
             Rect = rect;
 
             TileScale = 2;
+
+            AllowedDirections = new Dictionary<int, bool>();
+
+            for(int i = 0; i < boolArray.Length; i++)
+            {
+                if (boolArray[i])
+                {
+                    AllowedDirections.Add(i, true);
+                }
+                else
+                {
+                    AllowedDirections.Add(i, false);
+                }
+            }
         }
         public Tiles(Texture2D tex, Vector2 pos, bool empty)
         {
@@ -32,15 +48,15 @@ namespace PacMan
 
         }
 
-        public void Draw(Game1 game)
+        public void Draw(SpriteBatch sb)
         {
             if (Empty)
             {
-                game._spriteBatch.Draw(Tex, Pos, Color.White);
+                sb.Draw(Tex, Pos, Color.White);
             }
             else
             {
-                game._spriteBatch.Draw(Tex, Pos, Rect, Color.White, 0f, Vector2.Zero, new Vector2(TileScale, TileScale), SpriteEffects.None, 0f);
+                sb.Draw(Tex, Pos, Rect, Color.White, 0f, Vector2.Zero, new Vector2(TileScale, TileScale), SpriteEffects.None, 0f);
             }
         }
     }
