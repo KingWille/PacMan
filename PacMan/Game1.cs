@@ -11,6 +11,7 @@ namespace PacMan
         internal SpriteBatch _spriteBatch;
         internal LoadTexAndPos loadTexAndPos;
         internal Tiles[,] TilesArray;
+        internal StandardPoint[,] standardPointsArray;
 
         internal Player player;
 
@@ -46,6 +47,7 @@ namespace PacMan
 
             loadTexAndPos.LoadMap(this);
             loadTexAndPos.LoadPlayerSpritesAndPos(TilesArray);
+            loadTexAndPos.LoadPoints(this);
 
             _graphics.PreferredBackBufferWidth = TilesArray.GetLength(1) * loadTexAndPos.TileSize * 2;
             _graphics.PreferredBackBufferHeight = TilesArray.GetLength(0) * loadTexAndPos.TileSize * 2;

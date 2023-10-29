@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using SharpDX.Direct3D11;
 using SharpDX.MediaFoundation.DirectX;
 using System.Diagnostics;
+using Microsoft.Xna.Framework.Input;
 
 namespace PacMan
 {
@@ -16,12 +17,14 @@ namespace PacMan
         private Vector2 Destination;
         private Vector2 LastLineUpTile;
 
-        private bool CanMove;
+        internal bool CanMove;
+        internal bool CanTurn;
         private bool Wall;
 
         private int DirectionIndex;
         private int TileSize;
         private Tiles[,] TileArray;
+        internal InputHandler inputHandler;
 
         private float Speed;
 
@@ -29,66 +32,117 @@ namespace PacMan
         {
             TileSize = tileSize;
             CanMove = true;
+            CanTurn = true;
             Wall = false;
             Speed = speed;
 
+            inputHandler = new InputHandler();
             TileArray = tileArray;
             Direction = Vector2.Zero;
             DirectionIndex = 0;
         }
+        //Vänder uppåt
         public void DirectionUp(Vector2 position, GameTime gameTime)
         {
-
-            Movement(new Vector2(0, -1), position);
-            CanMove = false;
-            DirectionIndex = 0;
+            if (CanTurn)
+            {
+                Movement(new Vector2(0, -1), position);
+                CanMove = false;
+                CanTurn = false;
+                DirectionIndex = 0;
+            }
+            
         }
+        //Vänder neråt
         public void DirectionDown(Vector2 position, GameTime gameTime)
         {
-            Movement(new Vector2(0, 1), position);
-            CanMove = false;
-            DirectionIndex = 2;
+            if (CanTurn)
+            {
+                Movement(new Vector2(0, 1), position);
+                CanMove = false;
+                CanTurn = false;
+                DirectionIndex = 2;
+            }
+            
         }
+        //Vänder åt vänster
         public void DirectionLeft(Vector2 position, GameTime gameTime)
         {
-            Movement(new Vector2(-1, 0), position);
-            CanMove = false;
-            DirectionIndex = 3;
+            if (CanTurn)
+            {
+                Movement(new Vector2(-1, 0), position);
+                CanMove = false;
+                CanTurn = false;
+                DirectionIndex = 3;
+            }
+            
         }
+
+        //Vänder åt höger
         public void DirectionRight(Vector2 position, GameTime gameTime)
         {
-            Movement(new Vector2(1, 0), position);
-            CanMove = false;
-            DirectionIndex = 1;
+            if (CanTurn)
+            {
+
+                Movement(new Vector2(1, 0), position);
+                CanMove = false;
+                CanTurn = false;
+                DirectionIndex = 1;
+            }
+            
+            
         }
+
+        //Upprepar pacmans rörelse när man inte bytar riktning
         public Vector2 KeepMoving(Vector2 position, GameTime gameTime)
         {
             Vector2 newPos = position;
+            Debug.WriteLine(inputHandler.LastTurn(DirectionIndex).ToString());
+            Debug.WriteLine(CurrentTile(LastLineUpTile)[DirectionIndex].ToString());
 
-            Debug.WriteLine(LastLineUpTile.ToString());
-
-            for (int i = 0; i < TileArray.GetLength(0); i++)
-            {
-                for(int j = 0;  j < TileArray.GetLength(1); j++)
-                {
-                    if (-2 < TileArray[i, j].Pos.X - newPos.X && TileArray[i, j].Pos.X - newPos.X < 2 
-                        && -2 < TileArray[i, j].Pos.Y - newPos.Y && TileArray[i,j].Pos.Y - newPos.Y < 2 && LastLineUpTile != newPos)
-                    {
-                        LastLineUpTile = TileArray[i, j].Pos;
-                    }
-                }
-            }
-
+            //Kollar att där inte är en vägg i vägen
             if (CurrentTile(LastLineUpTile)[DirectionIndex])
             {
                 Movement(Direction, position);
                 newPos += Direction * Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
 
-            if (Vector2.Distance(position, Destination) < 1)
+            //Kollar att man är upplinad med en ruta
+            for (int i = 0; i < TileArray.GetLength(0); i++)
             {
-                newPos = Destination;
-                CanMove = true;
+                for (int j = 0; j < TileArray.GetLength(1); j++)
+                {
+                    if (Vector2.Distance(newPos, TileArray[i, j].Pos) < 1 && LastLineUpTile != newPos)
+                    {
+                        newPos = TileArray[i, j].Pos;
+                        LastLineUpTile = TileArray[i, j].Pos;
+                        CanMove = true;
+                    }
+                }
+            }
+
+            //Bytar riktning när man är upplinad samt har ändrat riktning tidigare
+            if (CurrentTile(LastLineUpTile)[inputHandler.LastTurn(DirectionIndex)] && !CanTurn)
+            {
+                switch (inputHandler.LastTurn(DirectionIndex))
+                {
+                    case 0:
+                        CanTurn = true;
+                        DirectionUp(newPos, gameTime);
+                        break;
+                    case 1:
+                        CanTurn = true;
+                        DirectionRight(newPos, gameTime);
+                        break;
+                    case 2:
+                        CanTurn = true;
+                        DirectionDown(newPos, gameTime);
+                        break;
+                    case 3:
+                        CanTurn = true;
+                        DirectionLeft(newPos, gameTime);
+                        break;
+                }
             }
 
 
@@ -96,6 +150,7 @@ namespace PacMan
 
 
         }
+        //Sätter nästa destination för spelaren
         public void Movement(Vector2 direction, Vector2 position)
         {
             if (CanMove)
@@ -108,6 +163,7 @@ namespace PacMan
             }
         }
 
+        //Kollar om man får lov att röra sig i riktningen man vill
         public Dictionary<int, bool> CurrentTile(Vector2 position)
         {
             if(position.X < TileSize)

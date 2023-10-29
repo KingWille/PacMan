@@ -18,6 +18,7 @@ namespace PacMan
         internal Texture2D WallsTileTex;
         internal Texture2D EmptyTileTex;
         internal Texture2D PlayerTex;
+        internal Texture2D StandardPointTex;
 
         internal Vector2 tilePos;
         internal Vector2 PlayerStartPos;
@@ -32,6 +33,7 @@ namespace PacMan
             WallsTileTex = game.Content.Load<Texture2D>("TilesetWalls");
             EmptyTileTex = game.Content.Load <Texture2D>("emptyTile");
             PlayerTex = game.Content.Load<Texture2D>("pacmansheet");
+            StandardPointTex = game.Content.Load<Texture2D>("StandardPoint");
 
             TileSize = 32;
             SpriteSizePlayer = 64;
@@ -142,6 +144,27 @@ namespace PacMan
             }
 
             PlayerStartPos = tilesArray[tilesArray.GetLength(0) - 1, tilesArray.GetLength(1) - 1].Pos;
+        }
+
+        //Laddar in poängen
+        public void LoadPoints(Game1 game)
+        {
+            game.standardPointsArray = new StandardPoint[game.TilesArray.GetLength(0), game.TilesArray.GetLength(1)];
+            
+            for(int i = 0; i < game.TilesArray.GetLength(0); i++)
+            {
+                for(int j = 0; j < game.TilesArray.GetLength(1); j++)
+                {
+                    if (game.TilesArray[i, j].PointTile)
+                    {
+                        game.standardPointsArray[i,j] = new StandardPoint(StandardPointTex, game.TilesArray[i, j].Pos);
+                    }
+                    else
+                    {
+                        game.standardPointsArray[i, j] = new StandardPoint(EmptyTileTex, game.TilesArray[i,j].Pos);
+                    }
+                }
+            }
         }
     }
 }

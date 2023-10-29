@@ -17,12 +17,15 @@ namespace PacMan
         internal Rectangle Rect;
 
         internal bool Empty;
+        internal bool PointTile;
         internal int TileScale;
         public Tiles(Texture2D tex, Vector2 pos, Rectangle rect, bool[] boolArray)
         {
             Tex = tex;
             Pos = pos;
             Rect = rect;
+
+            PointTile = true;
 
             TileScale = 2;
 

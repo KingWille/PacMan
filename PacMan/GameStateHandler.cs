@@ -36,7 +36,15 @@ namespace PacMan
                 }
             }
 
+            for(int i = 0; i < game.standardPointsArray.GetLength(0); i++)
+            {
+                for(int j = 0;j < game.standardPointsArray.GetLength(1) ; j++)
+                {
+                    game.standardPointsArray[i, j].Draw(game._spriteBatch);
+                }
+            }
             game.player.Draw(game._spriteBatch);
+
         }
         public static void DrawWin()
         {
