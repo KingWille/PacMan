@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Eventing.Reader;
 using System.Text.RegularExpressions;
 
 namespace PacMan
@@ -64,6 +65,8 @@ namespace PacMan
         //Upprepar fienders rörelse
         public Vector2 KeepMoving(Vector2 position, Vector2 playerPos, GameTime gameTime)
         {
+            CheckAvailablePaths(position, playerPos, gameTime);
+
             Vector2 newPos = position;
 
             //Kollar att där inte är en vägg i vägen
@@ -82,7 +85,6 @@ namespace PacMan
                     {
                         newPos = TileArray[i, j].Pos;
                         LastLineUpTile = TileArray[i, j].Pos;
-                        CheckAvailablePaths(TileArray[i, j].Pos, playerPos, gameTime);
                     }
                 }
             }
@@ -117,82 +119,63 @@ namespace PacMan
 
         public void CheckAvailablePaths(Vector2 pos, Vector2 playerPos, GameTime gameTime)
         {
-            if (playerPos.Y > pos.Y && playerPos.X > pos.X)
+
+            List<Tiles> closedTiles = new List<Tiles>();
+            Tiles last;
+            int tempDirectionIndex = 0;
+            bool posExists = false;
+
+            closedTiles.Add(TileArray[(int)pos.Y / TileSize / 2, (int)pos.X / TileSize / 2]);
+
+            while (!closedTiles.Contains(TileArray[(int)playerPos.Y / TileSize / 2, (int)playerPos.X / TileSize / 2]))
             {
-                if (CurrentTile(pos)[0])
+
+                if (!CurrentTile(closedTiles[closedTiles.Count - 1].Pos)[tempDirectionIndex])
                 {
-                    DirectionUp(pos, gameTime);
+                    tempDirectionIndex++;
                 }
-                else if (CurrentTile(pos)[1])
+                else
                 {
-                    DirectionRight(pos, gameTime);
-                }
-                else if (CurrentTile(pos)[2])
-                {
-                    DirectionDown(pos, gameTime);
-                }
-                else if (CurrentTile(pos)[3])
-                {
-                    DirectionLeft(pos, gameTime);
+                    foreach (Tiles t in closedTiles)
+                    {
+                        if (t.Pos == pos)
+                        {
+                            tempDirectionIndex++;
+                            posExists = true;
+                        }
+                    }
+                    
+                
+                    switch (tempDirectionIndex)
+                    {
+                        case 0:
+                            pos.Y -= TileSize * 2;
+                            break;
+                        case 1:
+                            pos.X += TileSize * 2;
+                            break;
+                        case 2:
+                            pos.Y += TileSize * 2;
+                            break;
+                        case 3:
+                            pos.X -= TileSize * 2;
+                            break;
+                    }
+
+                    tempDirectionIndex = 0;
+
+                    if(!posExists)
+                    {
+                        closedTiles.Add(TileArray[(int)pos.Y / TileSize / 2, (int)pos.X / TileSize / 2]);
+                    }
+                    else
+                    {
+                        posExists = false;
+                    }
                 }
             }
-            else if (playerPos.Y > pos.Y && playerPos.X < pos.X)
-            {
-                if (CurrentTile(pos)[0])
-                {
-                    DirectionUp(pos, gameTime);
-                }
-                else if (CurrentTile(pos)[3])
-                {
-                    DirectionLeft(pos, gameTime);
-                }
-                else if (CurrentTile(pos)[1])
-                {
-                    DirectionRight(pos, gameTime);
-                }
-                else if (CurrentTile(pos)[2])
-                {
-                    DirectionDown(pos, gameTime);
-                }
-            }
-            else if (playerPos.Y < pos.Y && playerPos.X < pos.X)
-            {
-                if (CurrentTile(pos)[2])
-                {
-                    DirectionDown(pos, gameTime);
-                }
-                else if (CurrentTile(pos)[3])
-                {
-                    DirectionLeft(pos, gameTime);
-                }
-                else if (CurrentTile(pos)[1])
-                {
-                    DirectionRight(pos, gameTime);
-                }
-                else if (CurrentTile(pos)[0])
-                {
-                    DirectionUp(pos, gameTime);
-                }
-            }
-            else if (playerPos.Y < pos.Y && playerPos.X > pos.X)
-            {
-                if (CurrentTile(pos)[2])
-                {
-                    DirectionDown(pos, gameTime);
-                }
-                else if (CurrentTile(pos)[1])
-                {
-                    DirectionRight(pos, gameTime);
-                }
-                else if (CurrentTile(pos)[3])
-                {
-                    DirectionLeft(pos, gameTime);
-                }
-                else if (CurrentTile(pos)[2])
-                {
-                    DirectionDown(pos, gameTime);
-                }
-            }
+
+            
         }
         //Ritar fiendens animation
         public void DrawMovement(Vector2 Pos, GameTime gameTime, SpriteBatch sb)
