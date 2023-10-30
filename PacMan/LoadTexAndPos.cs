@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Security;
+using System.Security.Cryptography.X509Certificates;
 
 namespace PacMan
 {
@@ -14,17 +16,23 @@ namespace PacMan
     {
         internal List<string> Mapper;
         internal StreamReader Sr;
+        internal SpriteFont Font;
 
         internal Texture2D WallsTileTex;
         internal Texture2D EmptyTileTex;
         internal Texture2D PlayerTex;
+        internal Texture2D PlayerTexTurned;
         internal Texture2D StandardPointTex;
-
+        internal Texture2D TransTex;
+        internal Texture2D EnemiesAndFruitTex;
         internal Vector2 tilePos;
         internal Vector2 PlayerStartPos;
+        internal Vector2 EnemyStartPos1;
+        internal Vector2 EnemyStartPos2;
 
         internal Rectangle[,] WallTiles;
         internal Rectangle[] PlayerSprites;
+        internal Rectangle[,] EnemyAndFruitSprites;
 
         internal int SpriteSizePlayer;
         internal int TileSize;
@@ -33,7 +41,12 @@ namespace PacMan
             WallsTileTex = game.Content.Load<Texture2D>("TilesetWalls");
             EmptyTileTex = game.Content.Load <Texture2D>("emptyTile");
             PlayerTex = game.Content.Load<Texture2D>("pacmansheet");
+            PlayerTexTurned = game.Content.Load<Texture2D>("pacmansheet90");
             StandardPointTex = game.Content.Load<Texture2D>("StandardPoint");
+            TransTex = game.Content.Load<Texture2D>("Transparent");
+            EnemiesAndFruitTex = game.Content.Load<Texture2D>("SpriteSheetEnemiesAndFruits");
+
+            Font = game.Content.Load<SpriteFont>("Font");
 
             TileSize = 32;
             SpriteSizePlayer = 64;
@@ -124,8 +137,11 @@ namespace PacMan
                         case 'p':
                             game.TilesArray[i, j] = new Tiles(WallsTileTex, tilePos, WallTiles[3, 3], new bool[] { true, true, true, true });
                             break;
-                        default:
+                        case '1':
                             game.TilesArray[i, j] = new Tiles(EmptyTileTex, tilePos, true);
+                            break;
+                        default:
+                            game.TilesArray[i, j] = new Tiles(EmptyTileTex, tilePos, false);
                             break;
                     }
                 }
@@ -143,25 +159,52 @@ namespace PacMan
                 PlayerSprites[i] = new Rectangle(SpriteSizePlayer * i, 0, SpriteSizePlayer, SpriteSizePlayer);
             }
 
-            PlayerStartPos = tilesArray[tilesArray.GetLength(0) - 1, tilesArray.GetLength(1) - 1].Pos;
+            PlayerStartPos = tilesArray[tilesArray.GetLength(0) - 2, tilesArray.GetLength(1) - 1].Pos;
+        }
+
+        //Laddar in spritsen för friender och frukt, samt start positionen för fiender;
+        public void LoadEnemyAndFruitSpritesAndEnemyPos(Tiles[,] tilesArray)
+        {
+            EnemyAndFruitSprites = new Rectangle[6, 8];
+
+            for(int i = 0; i < EnemyAndFruitSprites.GetLength(0); i++)
+            {
+                for(int j = 0; j < EnemyAndFruitSprites.GetLength(1); j++)
+                {
+                    EnemyAndFruitSprites[i, j] = new Rectangle(SpriteSizePlayer * j, SpriteSizePlayer * i, SpriteSizePlayer, SpriteSizePlayer);
+                }
+            }
+
+            for(int i = 0; i < tilesArray.GetLength(0); i++)
+            {
+                for (int j = 0;j < tilesArray.GetLength(1);j++)
+                {
+                    if (tilesArray[i, j].Ghost)
+                    {
+                        EnemyStartPos1 = tilesArray[i, j].Pos;
+                        EnemyStartPos2 = tilesArray[i, j + 1].Pos;
+                        break;
+                    }
+                }
+            }
         }
 
         //Laddar in poängen
-        public void LoadPoints(Game1 game)
+        public void LoadPoints(Tiles[,] tileArray, PointManager pointsManager)
         {
-            game.standardPointsArray = new StandardPoint[game.TilesArray.GetLength(0), game.TilesArray.GetLength(1)];
+            pointsManager.StandardPointsArray = new StandardPoint[tileArray.GetLength(0), tileArray.GetLength(1)];
             
-            for(int i = 0; i < game.TilesArray.GetLength(0); i++)
+            for(int i = 0; i < tileArray.GetLength(0); i++)
             {
-                for(int j = 0; j < game.TilesArray.GetLength(1); j++)
+                for(int j = 0; j < tileArray.GetLength(1); j++)
                 {
-                    if (game.TilesArray[i, j].PointTile)
+                    if (tileArray[i, j].PointTile)
                     {
-                        game.standardPointsArray[i,j] = new StandardPoint(StandardPointTex, game.TilesArray[i, j].Pos);
+                        pointsManager.StandardPointsArray[i,j] = new StandardPoint(StandardPointTex, tileArray[i, j].Pos, false);
                     }
                     else
                     {
-                        game.standardPointsArray[i, j] = new StandardPoint(EmptyTileTex, game.TilesArray[i,j].Pos);
+                        pointsManager.StandardPointsArray[i, j] = new StandardPoint(EmptyTileTex, tileArray[i,j].Pos, false);
                     }
                 }
             }

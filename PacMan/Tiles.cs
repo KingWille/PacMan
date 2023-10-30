@@ -16,7 +16,7 @@ namespace PacMan
         internal Vector2 Pos;
         internal Rectangle Rect;
 
-        internal bool Empty;
+        internal bool Ghost;
         internal bool PointTile;
         internal int TileScale;
         public Tiles(Texture2D tex, Vector2 pos, Rectangle rect, bool[] boolArray)
@@ -43,17 +43,17 @@ namespace PacMan
                 }
             }
         }
-        public Tiles(Texture2D tex, Vector2 pos, bool empty)
+        public Tiles(Texture2D tex, Vector2 pos, bool ghost)
         {
             Tex = tex;
             Pos = pos;
-            Empty = empty;
+            Ghost = ghost;
 
         }
 
         public void Draw(SpriteBatch sb)
         {
-            if (Empty)
+            if (Ghost)
             {
                 sb.Draw(Tex, Pos, Color.White);
             }

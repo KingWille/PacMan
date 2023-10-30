@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
-using SharpDX.Direct3D11;
-using SharpDX.MediaFoundation.DirectX;
 using System.Diagnostics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace PacMan
 {
@@ -24,11 +23,14 @@ namespace PacMan
         private int DirectionIndex;
         private int TileSize;
         private Tiles[,] TileArray;
+        private Animation playerAnimation;
+        private SpriteEffects SE;
+        private Texture2D CurrentTex;
         internal InputHandler inputHandler;
 
         private float Speed;
 
-        public PlayerController(int tileSize, Tiles[,] tileArray, float speed)
+        public PlayerController(int tileSize, Tiles[,] tileArray, float speed, Animation animation)
         {
             TileSize = tileSize;
             CanMove = true;
@@ -36,6 +38,7 @@ namespace PacMan
             Wall = false;
             Speed = speed;
 
+            playerAnimation = animation;
             inputHandler = new InputHandler();
             TileArray = tileArray;
             Direction = Vector2.Zero;
@@ -97,8 +100,6 @@ namespace PacMan
         public Vector2 KeepMoving(Vector2 position, GameTime gameTime)
         {
             Vector2 newPos = position;
-            Debug.WriteLine(inputHandler.LastTurn(DirectionIndex).ToString());
-            Debug.WriteLine(CurrentTile(LastLineUpTile)[DirectionIndex].ToString());
 
             //Kollar att där inte är en vägg i vägen
             if (CurrentTile(LastLineUpTile)[DirectionIndex])
@@ -171,6 +172,31 @@ namespace PacMan
                 position.X = TileSize;
             }
             return TileArray[(int)position.Y / (TileSize * 2), (int)position.X / (TileSize * 2)].AllowedDirections;
+        }
+
+        public void DrawMovement(Vector2 Pos, GameTime gameTime, SpriteBatch sb) 
+        {
+            switch(DirectionIndex)
+            {
+                case 0:
+                    CurrentTex = playerAnimation.SpriteSheetTurned;
+                    SE = SpriteEffects.None;
+                    break;
+                case 1:
+                    CurrentTex = playerAnimation.SpriteSheet;
+                    SE = SpriteEffects.None;
+                    break;
+                case 2:
+                    CurrentTex = playerAnimation.SpriteSheetTurned;
+                    SE = SpriteEffects.FlipVertically;
+                    break;
+                case 3:
+                    CurrentTex = playerAnimation.SpriteSheet;
+                    SE = SpriteEffects.FlipHorizontally;
+                    break;
+            }
+
+            sb.Draw(CurrentTex, Pos, playerAnimation.Rects[playerAnimation.RunAnimation(gameTime)], Color.White, 0f, Vector2.Zero, new Vector2(1, 1), SE, 1f);
         }
     }
 }

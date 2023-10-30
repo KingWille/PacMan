@@ -10,9 +10,10 @@ namespace PacMan
     internal abstract class Characters
     {
         internal Vector2 Pos;
+        internal Texture2D Tex;
         internal float Speed;
 
-        public abstract void Update(GameTime gameTime);
-        public abstract void Draw(SpriteBatch sb);
+        public abstract void Update(GameTime gameTime, Vector2 playerPos);
+        public abstract void Draw(SpriteBatch sb, GameTime gameTime);
     }
 }

@@ -11,9 +11,13 @@ namespace PacMan
         internal SpriteBatch _spriteBatch;
         internal LoadTexAndPos loadTexAndPos;
         internal Tiles[,] TilesArray;
+        internal Enemy[] Enemies;
         internal StandardPoint[,] standardPointsArray;
+        internal PointManager PointManager;
 
         internal Player player;
+
+        internal Vector2 WindowSize;
 
         internal enum GameState
         {
@@ -23,7 +27,7 @@ namespace PacMan
             lose
         }
 
-        GameState state;
+        internal GameState state;
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -42,18 +46,36 @@ namespace PacMan
         {
             state = GameState.game;
             _spriteBatch = new SpriteBatch(GraphicsDevice);
+            Enemies = new Enemy[4];
 
             loadTexAndPos = new LoadTexAndPos(this);
+            PointManager = new PointManager(loadTexAndPos.Font, loadTexAndPos.TransTex);
 
             loadTexAndPos.LoadMap(this);
             loadTexAndPos.LoadPlayerSpritesAndPos(TilesArray);
-            loadTexAndPos.LoadPoints(this);
+            loadTexAndPos.LoadPoints(TilesArray, PointManager);
+            loadTexAndPos.LoadEnemyAndFruitSpritesAndEnemyPos(TilesArray);
 
             _graphics.PreferredBackBufferWidth = TilesArray.GetLength(1) * loadTexAndPos.TileSize * 2;
             _graphics.PreferredBackBufferHeight = TilesArray.GetLength(0) * loadTexAndPos.TileSize * 2;
             _graphics.ApplyChanges();
 
-            player = new Player(loadTexAndPos.PlayerStartPos, loadTexAndPos.TileSize, loadTexAndPos.PlayerTex, loadTexAndPos.PlayerSprites[0], TilesArray);
+            WindowSize = new Vector2(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+
+            player = new Player(loadTexAndPos.PlayerStartPos, loadTexAndPos.TileSize, loadTexAndPos.PlayerTex, loadTexAndPos.PlayerTexTurned, loadTexAndPos.PlayerSprites, TilesArray, WindowSize);
+
+            for(int i = 0; i < Enemies.Length;  i++)
+            {
+                if (i < 2)
+                {
+                    Enemies[i] = new Enemy(loadTexAndPos.TileSize, loadTexAndPos.EnemiesAndFruitTex, TilesArray[0,0].Pos /*loadTexAndPos.EnemyStartPos1*/, loadTexAndPos.EnemyAndFruitSprites, i, TilesArray);
+                }
+                else 
+                {
+                    Enemies[i] = new Enemy(loadTexAndPos.TileSize, loadTexAndPos.EnemiesAndFruitTex, loadTexAndPos.EnemyStartPos2, loadTexAndPos.EnemyAndFruitSprites, i, TilesArray); 
+                }
+            }
+            
 
             // TODO: use this.Content to load your game content here
         }
@@ -95,7 +117,7 @@ namespace PacMan
                     GameStateHandler.DrawStart();
                     break;
                 case GameState.game:
-                    GameStateHandler.DrawGame(this);
+                    GameStateHandler.DrawGame(this, gameTime);
                     break;
                 case GameState.win:
                     GameStateHandler.DrawWin();

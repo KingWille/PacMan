@@ -8,6 +8,7 @@ namespace PacMan
         internal Texture2D Tex;
         internal Vector2 Pos;
         internal int PointValue;
+        internal bool Taken;
         public PointItems() 
         {
 

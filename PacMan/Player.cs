@@ -1,28 +1,31 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using System.Net.Http;
+using System.Diagnostics;
 
 namespace PacMan
 {
     
     internal class Player : Characters
     {
-
+        private Animation PlayerAnimation;
         private PlayerController Controller;
         private InputHandler InputHandler;
-        private Rectangle tempRect;
-        private Texture2D tempTex;
-        public Player(Vector2 pos, int tileSize, Texture2D tex, Rectangle rect, Tiles[,] tileArray) 
+        private Rectangle[] FrameArray;
+        private Vector2 WindowSize;
+        public Player(Vector2 pos, int tileSize, Texture2D tex, Texture2D texTurned, Rectangle[] rect, Tiles[,] tileArray, Vector2 windowSize) 
         {
             Pos = pos;
-            tempTex = tex;
-            tempRect = rect;
-            Speed = 100f;
-            Controller = new PlayerController(tileSize, tileArray, Speed);
+            Speed = 200f;
+            WindowSize = windowSize;
+            FrameArray = rect;
+            PlayerAnimation = new Animation(rect, tex, texTurned);
+            Controller = new PlayerController(tileSize, tileArray, Speed, PlayerAnimation);
             InputHandler = new InputHandler();
         }
         //Update metoden för spelaren
-        public override void Update(GameTime gameTime)
+        public override void Update(GameTime gameTime, Vector2 playerPos)
         {
             InputHandler.GetState();
             
@@ -50,11 +53,26 @@ namespace PacMan
             {
                 Pos = Controller.KeepMoving(Pos, gameTime);
             }
+
+            IfOutOfBound();
+            Debug.WriteLine(Pos);
         }
         //Rit metoden för spelaren
-        public override void Draw(SpriteBatch sb)
+        public override void Draw(SpriteBatch sb, GameTime gameTime)
         {
-            sb.Draw(tempTex, Pos, tempRect, Color.White, 0f, Vector2.Zero, new Vector2(1, 1), SpriteEffects.None, 1f);
+            Controller.DrawMovement(Pos, gameTime, sb);
+        }
+        //Flyttar pacman om man är utanför skärmen
+        public void IfOutOfBound()
+        {
+            if(0 > Pos.X + FrameArray[0].Width)
+            {
+                Pos.X = WindowSize.X;
+            }
+            else if(WindowSize.X < Pos.X)
+            {
+                Pos.X = 0 - FrameArray[0].Width;
+            }
         }
     }
 }
