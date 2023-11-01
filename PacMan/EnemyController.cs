@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.Text.RegularExpressions;
+using System.Threading.Channels;
 
 namespace PacMan
 {
@@ -12,6 +13,7 @@ namespace PacMan
     {
         private Animation Animation;
         private Texture2D Tex;
+        private Texture2D PathTile;
         private int Index;
         private int SecondIndexer;
         private int IndexMultiplierFrame1;
@@ -21,9 +23,12 @@ namespace PacMan
         private float Speed;
         private Vector2 Destination;
         private Vector2 Direction;
-        private Vector2 LastLineUpTile;
+        private Vector2 LastLinedUpTile;
+        private Vector2 LastPlayerLinedUpTile;
         private Tiles[,] TileArray;
-        public EnemyController(Animation animation, int indexer, Texture2D tex, int tileSize, float speed, Tiles[,] tileArray)
+        private Node[,] NodeArray;
+        private List<Node> Path;
+        public EnemyController(Animation animation, int indexer, Texture2D tex, Texture2D path, int tileSize, float speed, Tiles[,] tileArray)
         {
             Animation = animation;
             Tex = tex;
@@ -31,6 +36,9 @@ namespace PacMan
             TileSize = tileSize;
             Speed = speed;
             TileArray = tileArray;
+            PathTile = path;
+
+            NodeArray = new Node[TileArray.GetLength(0), TileArray.GetLength(1)];
         }
 
         //Vänder uppåt
@@ -65,30 +73,19 @@ namespace PacMan
         //Upprepar fienders rörelse
         public Vector2 KeepMoving(Vector2 position, Vector2 playerPos, GameTime gameTime)
         {
-            CheckAvailablePaths(position, playerPos, gameTime);
-
             Vector2 newPos = position;
 
             //Kollar att där inte är en vägg i vägen
-            if (CurrentTile(LastLineUpTile)[DirectionIndex])
+            if (CurrentTile(LastLinedUpTile)[DirectionIndex])
             {
                 Movement(Direction, position);
                 newPos += Direction * Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
 
-            //Kollar att fienden är upplinad med en ruta
-            for (int i = 0; i < TileArray.GetLength(0); i++)
-            {
-                for (int j = 0; j < TileArray.GetLength(1); j++)
-                {
-                    if (Vector2.Distance(newPos, TileArray[i, j].Pos) < 2 && LastLineUpTile != newPos)
-                    {
-                        newPos = TileArray[i, j].Pos;
-                        LastLineUpTile = TileArray[i, j].Pos;
-                    }
-                }
-            }
+            //Kollar att fienden och spelaren är upplinad med en ruta
+            ChecklinedUp(position, playerPos);
 
+            Path = CheckAvailablePaths(LastLinedUpTile, LastPlayerLinedUpTile, gameTime);
 
             return newPos;
 
@@ -117,65 +114,68 @@ namespace PacMan
             return TileArray[(int)position.Y / (TileSize * 2), (int)position.X / (TileSize * 2)].AllowedDirections;
         }
 
-        public void CheckAvailablePaths(Vector2 pos, Vector2 playerPos, GameTime gameTime)
+        public List<Node> CheckAvailablePaths(Vector2 pos, Vector2 playerPos, GameTime gameTime)
         {
+            Node[] openNodes = new Node[TileArray.GetLength(0) * TileArray.GetLength(1)];
+            List<Node> closedNodes = new List<Node>();
+            Node[] adjNodes = new Node[4];
+            Node nextNode = null;
+            bool Reached = false;
 
-            List<Tiles> closedTiles = new List<Tiles>();
-            Tiles last;
-            int tempDirectionIndex = 0;
-            bool posExists = false;
+            //Hämtar alla nodes
 
-            closedTiles.Add(TileArray[(int)pos.Y / TileSize / 2, (int)pos.X / TileSize / 2]);
-
-            while (!closedTiles.Contains(TileArray[(int)playerPos.Y / TileSize / 2, (int)playerPos.X / TileSize / 2]))
+            for(int i = 0; i < TileArray.GetLength(0); i++)
             {
-
-                if (!CurrentTile(closedTiles[closedTiles.Count - 1].Pos)[tempDirectionIndex])
+                for(int j = 0; j < TileArray.GetLength(1); j++)
                 {
-                    tempDirectionIndex++;
-                }
-                else
-                {
-                    foreach (Tiles t in closedTiles)
+                    if (i == 0)
                     {
-                        if (t.Pos == pos)
-                        {
-                            tempDirectionIndex++;
-                            posExists = true;
-                        }
-                    }
-                    
-                
-                    switch (tempDirectionIndex)
-                    {
-                        case 0:
-                            pos.Y -= TileSize * 2;
-                            break;
-                        case 1:
-                            pos.X += TileSize * 2;
-                            break;
-                        case 2:
-                            pos.Y += TileSize * 2;
-                            break;
-                        case 3:
-                            pos.X -= TileSize * 2;
-                            break;
-                    }
-
-                    tempDirectionIndex = 0;
-
-                    if(!posExists)
-                    {
-                        closedTiles.Add(TileArray[(int)pos.Y / TileSize / 2, (int)pos.X / TileSize / 2]);
+                        openNodes[j] = new Node(TileArray[i, j].Pos, playerPos);
                     }
                     else
                     {
-                        posExists = false;
+                        openNodes[j  + i * 10] = new Node(TileArray[i, j].Pos, playerPos);
                     }
                 }
             }
 
-            
+            //Sätter första noden
+            foreach(Node node in openNodes) 
+            {
+                if(node.Pos == pos)
+                {
+                    nextNode = node;
+                    break;
+                }
+            }
+
+            //Loop som ger kortast path
+            while (!Reached)
+            {
+                closedNodes.Add(nextNode);
+                nextNode.Closed = true;
+
+                adjNodes = WalkableAdjacentTiles(openNodes, nextNode);
+
+                //Kollar vilken node som har kortast avstånd till spelaren av grannnodesen
+                foreach (Node n in adjNodes)
+                {
+                    if (n != null && n.TotalDistance < nextNode.TotalDistance)
+                    {
+                        n.ParentNode = nextNode;
+                        nextNode = n;
+                    }
+                }
+
+                //Kollar om pathen har nått spelaren och isåfall sätter while condition som true
+                if (nextNode.Pos == playerPos)
+                {
+                    closedNodes.Add(nextNode);
+                    nextNode.Closed = true;
+                    Reached = true;
+                }
+            }
+             return closedNodes;
         }
         //Ritar fiendens animation
         public void DrawMovement(Vector2 Pos, GameTime gameTime, SpriteBatch sb)
@@ -209,6 +209,87 @@ namespace PacMan
             else
             {
                 sb.Draw(Tex, Pos, Animation.Rects2[Index, SecondIndexer * IndexMultiplierFrame2], Color.White, 0f, Vector2.Zero, new Vector2(1, 1), SpriteEffects.None, 1f);
+            }
+
+            foreach(Node n in Path)
+            {
+                sb.Draw(PathTile, n.Pos, Color.White);
+            }
+        }
+
+        public Node[] WalkableAdjacentTiles(Node[] nodes, Node currentNode)
+        {
+            Node[] walkableNodes = new Node[4];
+
+            //Lägger till grann tilsen till currentNode
+            for(int i = 0; i < nodes.Length; i++)
+            {
+                if (nodes[i].Pos.Y == currentNode.Pos.Y && currentNode.Pos.X + TileSize * 2 == nodes[i].Pos.X)
+                {
+                    if (!nodes[i].Closed)
+                    {
+                        walkableNodes[1] = nodes[i];
+                    }
+                }
+                else if (nodes[i].Pos.Y == currentNode.Pos.Y && currentNode.Pos.X - TileSize * 2 == nodes[i].Pos.X)
+                {
+                    if (!nodes[i].Closed)
+                    {
+                        walkableNodes[3] = nodes[i];
+                    }
+                }
+                else if (nodes[i].Pos.X == currentNode.Pos.X && currentNode.Pos.Y + TileSize * 2 == nodes[i].Pos.Y)
+                {
+                    if (!nodes[i].Closed)
+                    {
+                        walkableNodes[2] = nodes[i];
+                    }
+                }
+                else if (nodes[i].Pos.X == currentNode.Pos.X && currentNode.Pos.Y - TileSize * 2 == nodes[i].Pos.Y)
+                {
+                    if (!nodes[i].Closed)
+                    {
+                        walkableNodes[1] = nodes[i];
+                    }
+                }
+            }
+
+            //Kollar vilka nodes som faktiskt är walkabale
+            for (int i = 0; i < 4; i++)
+            {
+                if(!CurrentTile(currentNode.Pos)[i])
+                {
+                    walkableNodes[i] = null;
+                }
+            }
+
+            return walkableNodes;
+        }
+
+        public void ChecklinedUp(Vector2 pos, Vector2 playerPos)
+        {
+            for (int i = 0; i < TileArray.GetLength(0); i++)
+            {
+                for (int j = 0; j < TileArray.GetLength(1); j++)
+                {
+                    if (Vector2.Distance(pos, TileArray[i, j].Pos) < 2 && LastLinedUpTile != pos)
+                    {
+                        LastLinedUpTile = TileArray[i, j].Pos;
+                        break;
+                    }
+                }
+            }
+
+            for (int i = 0; i < TileArray.GetLength(0); i++)
+            {
+                for (int j = 0; j < TileArray.GetLength(1); j++)
+                {
+                    if (Vector2.Distance(playerPos, TileArray[i, j].Pos) < 2 && LastPlayerLinedUpTile != playerPos)
+                    {
+                        LastPlayerLinedUpTile = TileArray[i, j].Pos;
+                        break;
+                    }
+                }
             }
         }
     }

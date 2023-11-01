@@ -68,11 +68,11 @@ namespace PacMan
             {
                 if (i < 2)
                 {
-                    Enemies[i] = new Enemy(loadTexAndPos.TileSize, loadTexAndPos.EnemiesAndFruitTex, TilesArray[0,0].Pos /*loadTexAndPos.EnemyStartPos1*/, loadTexAndPos.EnemyAndFruitSprites, i, TilesArray);
+                    Enemies[i] = new Enemy(loadTexAndPos.TileSize, loadTexAndPos.EnemiesAndFruitTex, loadTexAndPos.PathTile, TilesArray[4,3].Pos /*loadTexAndPos.EnemyStartPos1*/, loadTexAndPos.EnemyAndFruitSprites, i, TilesArray);
                 }
                 else 
                 {
-                    Enemies[i] = new Enemy(loadTexAndPos.TileSize, loadTexAndPos.EnemiesAndFruitTex, loadTexAndPos.EnemyStartPos2, loadTexAndPos.EnemyAndFruitSprites, i, TilesArray); 
+                    Enemies[i] = new Enemy(loadTexAndPos.TileSize, loadTexAndPos.EnemiesAndFruitTex, loadTexAndPos.PathTile, loadTexAndPos.EnemyStartPos2, loadTexAndPos.EnemyAndFruitSprites, i, TilesArray); 
                 }
             }
             
