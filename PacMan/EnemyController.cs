@@ -122,7 +122,7 @@ namespace PacMan
             List<Node> closedNodes = new List<Node>();
             List<Node> adjNodes = new List<Node>();
             List<Node> tempAdjNodes = new List<Node>();
-            //Node[] adjNodes = new Node[4];
+            List<Node> finishedPath = new List<Node>();
             Node nextNode = null;
             bool Reached = false;
 
@@ -177,8 +177,14 @@ namespace PacMan
                 
                 if(adjNodes.Count == 0)
                 {
-                    nextNode.Closed = true;
+                    closedNodes.Remove(nextNode);
                     nextNode = nextNode.ParentNode;
+                }
+                else if(adjNodes.Count >= 2)
+                {
+                    adjNodes[0] = DetermineRouteIfSameCost(adjNodes.ToArray(), playerPos);
+                    adjNodes[0].ParentNode = nextNode;
+                    nextNode = adjNodes[0];
                 }
                 else
                 {
@@ -188,8 +194,6 @@ namespace PacMan
 
                 tempAdjNodes.Clear();
                 adjNodes.Clear();
-                //Array.Sort(adjNodes, new ArraySorter());
-
 
                 //Kollar om pathen har nått spelaren och isåfall sätter while condition som true
                 if (nextNode.Pos == playerPos)
@@ -199,7 +203,13 @@ namespace PacMan
                     Reached = true;
                 }
             }
-             return closedNodes;
+
+            while(nextNode.ParentNode != null)
+            {
+                finishedPath.Add(nextNode);
+                nextNode = nextNode.ParentNode;
+            }
+             return finishedPath;
         }
         //Ritar fiendens animation
         public void DrawMovement(Vector2 Pos, GameTime gameTime, SpriteBatch sb)
@@ -315,6 +325,51 @@ namespace PacMan
                     }
                 }
             }
+        }
+
+        public Node DetermineRouteIfSameCost(Node[] adjNodes, Vector2 playerPos)
+        {
+
+            Node result = adjNodes[0];
+
+            if (adjNodes[0].TotalDistance == adjNodes[1].TotalDistance)
+            {
+                foreach(Node node in adjNodes)
+                {
+                    if (playerPos.Y > node.Pos.Y && node != null)
+                    {
+                        if (CurrentTile(node.Pos)[2])
+                        {
+                            result = node;
+                        }
+                    }
+                    else if(playerPos.Y < node.Pos.Y && node != null)
+                    {
+                        if (CurrentTile(node.Pos)[0])
+                        {
+                            result = node;
+                        }
+                    }
+                    else if (playerPos.X < node.Pos.X && node != null)
+                    {
+                        if (CurrentTile(node.Pos)[3])
+                        {
+                            result = node;
+                        }
+                    }
+                    else if (playerPos.X > node.Pos.X && node != null)
+                    {
+                        if (CurrentTile(node.Pos)[1])
+                        {
+                            result = node;
+                        }
+                    }
+                }
+
+            }
+
+
+            return result;
         }
     }
 }
