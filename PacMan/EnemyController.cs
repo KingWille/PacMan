@@ -27,7 +27,6 @@ namespace PacMan
         private Vector2 LastLinedUpTile;
         private Vector2 LastPlayerLinedUpTile;
         private Tiles[,] TileArray;
-        private Node[,] NodeArray;
         private List<Node> Path;
         public EnemyController(Animation animation, int indexer, Texture2D tex, Texture2D path, int tileSize, float speed, Tiles[,] tileArray)
         {
@@ -39,25 +38,25 @@ namespace PacMan
             TileArray = tileArray;
             PathTile = path;
 
-            NodeArray = new Node[TileArray.GetLength(0), TileArray.GetLength(1)];
+            Path = new List<Node>();
         }
 
         //Vänder uppåt
-        public void DirectionUp(Vector2 position, GameTime gameTime)
+        public void DirectionUp(Vector2 position)
         {
 
             Movement(new Vector2(0, -1), position);
             DirectionIndex = 0;
         }
         //Vänder neråt
-        public void DirectionDown(Vector2 position, GameTime gameTime)
+        public void DirectionDown(Vector2 position)
         {
 
             Movement(new Vector2(0, 1), position);
             DirectionIndex = 2;
         }
         //Vänder åt vänster
-        public void DirectionLeft(Vector2 position, GameTime gameTime)
+        public void DirectionLeft(Vector2 position)
         {
 
             Movement(new Vector2(-1, 0), position);
@@ -65,7 +64,7 @@ namespace PacMan
         }
 
         //Vänder åt höger
-        public void DirectionRight(Vector2 position, GameTime gameTime)
+        public void DirectionRight(Vector2 position)
         {
             Movement(new Vector2(1, 0), position);
             DirectionIndex = 1;
@@ -76,17 +75,36 @@ namespace PacMan
         {
             Vector2 newPos = position;
 
-            //Kollar att där inte är en vägg i vägen
             if (CurrentTile(LastLinedUpTile)[DirectionIndex])
             {
-                Movement(Direction, position);
                 newPos += Direction * Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
+           
 
             //Kollar att fienden och spelaren är upplinad med en ruta
             ChecklinedUp(position, playerPos);
 
-            Path = CheckAvailablePaths(LastLinedUpTile, LastPlayerLinedUpTile, gameTime);
+            Path = CheckAvailablePaths(LastLinedUpTile, LastPlayerLinedUpTile);
+
+            if (Path.Count != 0)
+            {
+                if (Path[Path.Count - 1].Pos.X > LastLinedUpTile.X)
+                {
+                    DirectionRight(position);
+                }
+                else if (Path[Path.Count - 1].Pos.X < LastLinedUpTile.X)
+                {
+                    DirectionLeft(position);
+                }
+                else if (Path[Path.Count - 1].Pos.Y > LastLinedUpTile.Y)
+                {
+                    DirectionDown(position);
+                }
+                else if (Path[Path.Count - 1].Pos.Y < LastLinedUpTile.Y)
+                {
+                    DirectionUp(position);
+                }
+            }
 
             return newPos;
 
@@ -115,7 +133,7 @@ namespace PacMan
             return TileArray[(int)position.Y / (TileSize * 2), (int)position.X / (TileSize * 2)].AllowedDirections;
         }
 
-        public List<Node> CheckAvailablePaths(Vector2 pos, Vector2 playerPos, GameTime gameTime)
+        public List<Node> CheckAvailablePaths(Vector2 pos, Vector2 playerPos)
         {
             Node[] openNodes = new Node[TileArray.GetLength(0) * TileArray.GetLength(1) - 22];
             List<Node> tempOpenNodes = new List<Node>();
@@ -306,10 +324,9 @@ namespace PacMan
             {
                 for (int j = 0; j < TileArray.GetLength(1); j++)
                 {
-                    if (Vector2.Distance(pos, TileArray[i, j].Pos) < 2 && LastLinedUpTile != pos)
+                    if (Vector2.Distance(pos, TileArray[i, j].Pos) < 3 && LastLinedUpTile != pos)
                     {
                         LastLinedUpTile = TileArray[i, j].Pos;
-                        break;
                     }
                 }
             }

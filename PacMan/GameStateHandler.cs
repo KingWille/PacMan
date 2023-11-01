@@ -15,7 +15,7 @@ namespace PacMan
             game.player.Update(gameTime, game.player.Pos);
             game.PointManager.Update(game.player.Pos, game, gameTime);
 
-                game.Enemies[0].Update(gameTime, game.player.Pos);
+            game.Enemies[0].Update(gameTime, game.player.Pos);
             
         }
         public static void UpdateWin(Game1 game, GameTime gameTime)
