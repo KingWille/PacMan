@@ -20,8 +20,8 @@ namespace PacMan
         {
             Pos = startNode;
             Closed = false;
-            SetValues(startNode, endNode);
             ParentNode = null;
+            SetValues(startNode, endNode);
         }
 
         public void SetValues(Vector2 startNode, Vector2 endNode)

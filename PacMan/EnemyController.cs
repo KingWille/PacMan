@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Channels;
 
@@ -116,9 +117,12 @@ namespace PacMan
 
         public List<Node> CheckAvailablePaths(Vector2 pos, Vector2 playerPos, GameTime gameTime)
         {
-            Node[] openNodes = new Node[TileArray.GetLength(0) * TileArray.GetLength(1)];
+            Node[] openNodes = new Node[TileArray.GetLength(0) * TileArray.GetLength(1) - 22];
+            List<Node> tempOpenNodes = new List<Node>();
             List<Node> closedNodes = new List<Node>();
-            Node[] adjNodes = new Node[4];
+            List<Node> adjNodes = new List<Node>();
+            List<Node> tempAdjNodes = new List<Node>();
+            //Node[] adjNodes = new Node[4];
             Node nextNode = null;
             bool Reached = false;
 
@@ -128,16 +132,19 @@ namespace PacMan
             {
                 for(int j = 0; j < TileArray.GetLength(1); j++)
                 {
-                    if (i == 0)
+                    if (i == 0 && TileArray[i,j].AllowedDirections != null)
                     {
-                        openNodes[j] = new Node(TileArray[i, j].Pos, playerPos);
+                        tempOpenNodes.Add(new Node(TileArray[i, j].Pos, playerPos));
                     }
-                    else
+                    else if(TileArray[i,j].AllowedDirections != null)
                     {
-                        openNodes[j  + i * 10] = new Node(TileArray[i, j].Pos, playerPos);
+                        tempOpenNodes.Add(new Node(TileArray[i, j].Pos, playerPos));
                     }
                 }
             }
+
+            openNodes = tempOpenNodes.ToArray();
+            tempOpenNodes.Clear();
 
             //Sätter första noden
             foreach(Node node in openNodes) 
@@ -155,17 +162,34 @@ namespace PacMan
                 closedNodes.Add(nextNode);
                 nextNode.Closed = true;
 
-                adjNodes = WalkableAdjacentTiles(openNodes, nextNode);
+                tempAdjNodes = WalkableAdjacentTiles(openNodes, nextNode).ToList();
 
-                //Kollar vilken node som har kortast avstånd till spelaren av grannnodesen
-                foreach (Node n in adjNodes)
+                //Kollar vilken node som har kortast avstånd till spelaren av grann nodesen
+                foreach(Node n in tempAdjNodes)
                 {
-                    if (n != null && n.TotalDistance < nextNode.TotalDistance)
+                    if(n != null)
                     {
-                        n.ParentNode = nextNode;
-                        nextNode = n;
+                        adjNodes.Add(n);
                     }
                 }
+
+                adjNodes.Sort(0, adjNodes.Count, new ArraySorter());
+                
+                if(adjNodes.Count == 0)
+                {
+                    nextNode.Closed = true;
+                    nextNode = nextNode.ParentNode;
+                }
+                else
+                {
+                    adjNodes[0].ParentNode = nextNode;
+                    nextNode = adjNodes[0];
+                }
+
+                tempAdjNodes.Clear();
+                adjNodes.Clear();
+                //Array.Sort(adjNodes, new ArraySorter());
+
 
                 //Kollar om pathen har nått spelaren och isåfall sätter while condition som true
                 if (nextNode.Pos == playerPos)

@@ -48,7 +48,6 @@ namespace PacMan
             Tex = tex;
             Pos = pos;
             Ghost = ghost;
-
         }
 
         public void Draw(SpriteBatch sb)
