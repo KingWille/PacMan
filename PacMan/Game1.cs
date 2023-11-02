@@ -72,7 +72,7 @@ namespace PacMan
                 }
                 else 
                 {
-                    Enemies[i] = new Enemy(loadTexAndPos.TileSize, loadTexAndPos.EnemiesAndFruitTex, loadTexAndPos.PathTile, loadTexAndPos.EnemyStartPos2, loadTexAndPos.EnemyAndFruitSprites, i, TilesArray); 
+                    Enemies[i] = new Enemy(loadTexAndPos.TileSize, loadTexAndPos.EnemiesAndFruitTex, loadTexAndPos.PathTile, TilesArray[5,4].Pos/*loadTexAndPos.EnemyStartPos2*/, loadTexAndPos.EnemyAndFruitSprites, i, TilesArray); 
                 }
             }
             

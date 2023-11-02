@@ -15,7 +15,10 @@ namespace PacMan
             game.player.Update(gameTime, game.player.Pos);
             game.PointManager.Update(game.player.Pos, game, gameTime);
 
-            game.Enemies[0].Update(gameTime, game.player.Pos);
+            foreach(Enemy e in game.Enemies)
+            {
+                e.Update(gameTime, game.player.Pos);
+            }
             
         }
         public static void UpdateWin(Game1 game, GameTime gameTime)
@@ -47,10 +50,10 @@ namespace PacMan
             //Ritar upp poäng och tid
             game.PointManager.Draw(game._spriteBatch);
 
-            //for(int i = 0; i < game.Enemies.Length; i++)
-            //{
-                game.Enemies[0].Draw(game._spriteBatch, gameTime);
-            //}
+            for(int i = 0; i < game.Enemies.Length; i++)
+            {
+                game.Enemies[i].Draw(game._spriteBatch, gameTime);
+            }
         }
         public static void DrawWin()
         {

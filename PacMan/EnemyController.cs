@@ -41,68 +41,59 @@ namespace PacMan
             Path = new List<Node>();
         }
 
-        //Vänder uppåt
-        public void DirectionUp(Vector2 position)
-        {
-
-            Movement(new Vector2(0, -1), position);
-            DirectionIndex = 0;
-        }
-        //Vänder neråt
-        public void DirectionDown(Vector2 position)
-        {
-
-            Movement(new Vector2(0, 1), position);
-            DirectionIndex = 2;
-        }
-        //Vänder åt vänster
-        public void DirectionLeft(Vector2 position)
-        {
-
-            Movement(new Vector2(-1, 0), position);
-            DirectionIndex = 3;
-        }
-
-        //Vänder åt höger
-        public void DirectionRight(Vector2 position)
-        {
-            Movement(new Vector2(1, 0), position);
-            DirectionIndex = 1;
-        }
-
         //Upprepar fienders rörelse
         public Vector2 KeepMoving(Vector2 position, Vector2 playerPos, GameTime gameTime)
         {
             Vector2 newPos = position;
 
+            //Kollar att man inte försöker gå igenom en vägg
             if (CurrentTile(LastLinedUpTile)[DirectionIndex])
             {
                 newPos += Direction * Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            }
+
+            //Sätter positionen till lika med nästa tile
+            if(Vector2.Distance(position, Destination) < 5)
+            {
+                newPos = Destination;
             }
            
 
             //Kollar att fienden och spelaren är upplinad med en ruta
             ChecklinedUp(position, playerPos);
 
-            Path = CheckAvailablePaths(LastLinedUpTile, LastPlayerLinedUpTile);
-
-            if (Path.Count != 0)
+            //Tar bort nodes från path efterhand som de används
+            if(Path.Count != 0)
             {
-                if (Path[Path.Count - 1].Pos.X > LastLinedUpTile.X)
+                if (Path[0].Pos == LastLinedUpTile)
                 {
-                    DirectionRight(position);
+                    Path.RemoveAt(0);
                 }
-                else if (Path[Path.Count - 1].Pos.X < LastLinedUpTile.X)
+            }
+
+            //Sätter movement till vilket håll pathen är
+            if (Path.Count != 0 && position == LastLinedUpTile)
+            {
+
+                if (Path[0].Pos.X > LastLinedUpTile.X)
                 {
-                    DirectionLeft(position);
+                    Movement(new Vector2(1, 0), position);
+                    DirectionIndex = 1;
                 }
-                else if (Path[Path.Count - 1].Pos.Y > LastLinedUpTile.Y)
+                else if (Path[0].Pos.X < LastLinedUpTile.X)
                 {
-                    DirectionDown(position);
+                    Movement(new Vector2(-1, 0), position);
+                    DirectionIndex = 3;
                 }
-                else if (Path[Path.Count - 1].Pos.Y < LastLinedUpTile.Y)
+                else if (Path[0].Pos.Y > LastLinedUpTile.Y)
                 {
-                    DirectionUp(position);
+                    Movement(new Vector2(0, 1), position);
+                    DirectionIndex = 2;
+                }
+                else if (Path[0].Pos.Y < LastLinedUpTile.Y)
+                {
+                    Movement(new Vector2(0, -1), position);
+                    DirectionIndex = 0;
                 }
             }
 
@@ -198,6 +189,7 @@ namespace PacMan
                     closedNodes.Remove(nextNode);
                     nextNode = nextNode.ParentNode;
                 }
+                //Kollar om där är flera nodes med samma avstånd
                 else if(adjNodes.Count >= 2)
                 {
                     adjNodes[0] = DetermineRouteIfSameCost(adjNodes.ToArray(), playerPos);
@@ -222,11 +214,13 @@ namespace PacMan
                 }
             }
 
+            //Lägger till pathen i slut listan
             while(nextNode.ParentNode != null)
             {
                 finishedPath.Add(nextNode);
                 nextNode = nextNode.ParentNode;
             }
+            finishedPath.Reverse();
              return finishedPath;
         }
         //Ritar fiendens animation
@@ -301,7 +295,7 @@ namespace PacMan
                 {
                     if (!nodes[i].Closed)
                     {
-                        walkableNodes[1] = nodes[i];
+                        walkableNodes[0] = nodes[i];
                     }
                 }
             }
@@ -320,6 +314,7 @@ namespace PacMan
 
         public void ChecklinedUp(Vector2 pos, Vector2 playerPos)
         {
+            //sätter fiendens lineup
             for (int i = 0; i < TileArray.GetLength(0); i++)
             {
                 for (int j = 0; j < TileArray.GetLength(1); j++)
@@ -327,10 +322,12 @@ namespace PacMan
                     if (Vector2.Distance(pos, TileArray[i, j].Pos) < 3 && LastLinedUpTile != pos)
                     {
                         LastLinedUpTile = TileArray[i, j].Pos;
+                        break;
                     }
                 }
             }
 
+            //Sätter spelarens lineup
             for (int i = 0; i < TileArray.GetLength(0); i++)
             {
                 for (int j = 0; j < TileArray.GetLength(1); j++)
@@ -338,6 +335,7 @@ namespace PacMan
                     if (Vector2.Distance(playerPos, TileArray[i, j].Pos) < 2 && LastPlayerLinedUpTile != playerPos)
                     {
                         LastPlayerLinedUpTile = TileArray[i, j].Pos;
+                        Path = CheckAvailablePaths(LastLinedUpTile, LastPlayerLinedUpTile);
                         break;
                     }
                 }
@@ -349,6 +347,7 @@ namespace PacMan
 
             Node result = adjNodes[0];
 
+            //Avgör bästa noden att välja när två nodes har samma avstånd till spelaren
             if (adjNodes[0].TotalDistance == adjNodes[1].TotalDistance)
             {
                 foreach(Node node in adjNodes)
