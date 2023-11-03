@@ -10,22 +10,13 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace PacMan
 {
-    internal class PlayerController
+    internal class PlayerController : Controllers
     {
-        private Vector2 Direction;
-        private Vector2 Destination;
-        private Vector2 LastLineUpTile;
-
         internal bool CanMove;
         internal bool CanTurn;
         private bool Wall;
 
-        private int DirectionIndex;
-        private int TileSize;
-        private Tiles[,] TileArray;
-        private Animation playerAnimation;
         private SpriteEffects SE;
-        private Texture2D CurrentTex;
         internal InputHandler inputHandler;
 
         private float Speed;
@@ -38,7 +29,7 @@ namespace PacMan
             Wall = false;
             Speed = speed;
 
-            playerAnimation = animation;
+            Animation = animation;
             inputHandler = new InputHandler();
             TileArray = tileArray;
             Direction = Vector2.Zero;
@@ -102,7 +93,7 @@ namespace PacMan
             Vector2 newPos = position;
 
             //Kollar att där inte är en vägg i vägen
-            if (CurrentTile(LastLineUpTile)[DirectionIndex])
+            if (CurrentTile(LastLinedUpTile)[DirectionIndex])
             {
                 Movement(Direction, position);
                 newPos += Direction * Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -113,17 +104,17 @@ namespace PacMan
             {
                 for (int j = 0; j < TileArray.GetLength(1); j++)
                 {
-                    if (Vector2.Distance(newPos, TileArray[i, j].Pos) < 1 && LastLineUpTile != newPos)
+                    if (Vector2.Distance(newPos, TileArray[i, j].Pos) < 1 && LastLinedUpTile != newPos)
                     {
                         newPos = TileArray[i, j].Pos;
-                        LastLineUpTile = TileArray[i, j].Pos;
+                        LastLinedUpTile = TileArray[i, j].Pos;
                         CanMove = true;
                     }
                 }
             }
 
             //Bytar riktning när man är upplinad samt har ändrat riktning tidigare
-            if (CurrentTile(LastLineUpTile)[inputHandler.LastTurn(DirectionIndex)] && !CanTurn)
+            if (CurrentTile(LastLinedUpTile)[inputHandler.LastTurn(DirectionIndex)] && !CanTurn)
             {
                 switch (inputHandler.LastTurn(DirectionIndex))
                 {
@@ -179,24 +170,24 @@ namespace PacMan
             switch(DirectionIndex)
             {
                 case 0:
-                    CurrentTex = playerAnimation.SpriteSheetTurned;
+                    Tex = Animation.SpriteSheetTurned;
                     SE = SpriteEffects.None;
                     break;
                 case 1:
-                    CurrentTex = playerAnimation.SpriteSheet;
+                    Tex = Animation.SpriteSheet;
                     SE = SpriteEffects.None;
                     break;
                 case 2:
-                    CurrentTex = playerAnimation.SpriteSheetTurned;
+                    Tex = Animation.SpriteSheetTurned;
                     SE = SpriteEffects.FlipVertically;
                     break;
                 case 3:
-                    CurrentTex = playerAnimation.SpriteSheet;
+                    Tex = Animation.SpriteSheet;
                     SE = SpriteEffects.FlipHorizontally;
                     break;
             }
 
-            sb.Draw(CurrentTex, Pos, playerAnimation.Rects[playerAnimation.RunAnimation(gameTime)], Color.White, 0f, Vector2.Zero, new Vector2(1, 1), SE, 1f);
+            sb.Draw(Tex, Pos, Animation.Rects[Animation.RunAnimation(gameTime)], Color.White, 0f, Vector2.Zero, new Vector2(1, 1), SE, 1f);
         }
     }
 }

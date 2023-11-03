@@ -43,11 +43,25 @@ namespace PacMan
                 }
             }
         }
-        public Tiles(Texture2D tex, Vector2 pos, bool ghost)
+        public Tiles(Texture2D tex, Vector2 pos, bool ghost, bool[] boolArray)
         {
             Tex = tex;
             Pos = pos;
             Ghost = ghost;
+
+            AllowedDirections = new Dictionary<int, bool>();
+
+            for (int i = 0; i < boolArray.Length; i++)
+            {
+                if (boolArray[i])
+                {
+                    AllowedDirections.Add(i, true);
+                }
+                else
+                {
+                    AllowedDirections.Add(i, false);
+                }
+            }
         }
 
         public void Draw(SpriteBatch sb)

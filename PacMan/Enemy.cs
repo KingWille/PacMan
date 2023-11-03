@@ -10,11 +10,11 @@ namespace PacMan
 {
     internal class Enemy : Characters
     {
-        private EnemyController Controller;
+        private Controllers Controller;
         private Animation animation;
         private Random rnd;
         private int Indexer;
-        private bool Gates;
+        internal bool Gates;
         public Enemy(int tileSize, Texture2D tex, Texture2D path, Vector2 pos, Rectangle[,] sprites, int indexer, Tiles[,] tileArray)
         {
             this.Pos = pos;
@@ -23,12 +23,21 @@ namespace PacMan
             rnd = new Random();
             Speed = (float)rnd.Next(100, 150);
             animation = new Animation(sprites, tex);
-            Controller = new EnemyController(animation, Indexer, Tex, path, tileSize, Speed, tileArray);
-            Indexer = indexer;
+            Gates = false;
+
+            if(indexer == 0)
+            {
+                Controller = new EnemyController(animation, Tex, path, tileSize, Speed, tileArray);
+            }
+            else
+            {
+                Controller = new EnemyControllerRandom(animation, Tex, tileArray, Speed, tileSize);
+            }
+
         }
         public override void Update(GameTime gameTime, Vector2 playerPos)
         {
-            Pos = Controller.KeepMoving(Pos, playerPos, gameTime);
+            Pos = Controller.KeepMoving(Pos, playerPos, gameTime, Gates);
         }
         public override void Draw(SpriteBatch sb, GameTime gameTime)
         {

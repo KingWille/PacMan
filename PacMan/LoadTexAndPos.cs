@@ -92,7 +92,7 @@ namespace PacMan
                     switch (Mapper[i][j])
                     {
                         case 'a':
-                            game.TilesArray[i, j] = new Tiles(WallsTileTex, tilePos, WallTiles[0,0], new bool[] {false, false, false, false});
+                            game.TilesArray[i, j] = new Tiles(WallsTileTex, tilePos, WallTiles[0, 0], new bool[] { false, false, false, false });
                             break;
                         case 'b':
                             game.TilesArray[i, j] = new Tiles(WallsTileTex, tilePos, WallTiles[0, 1], new bool[] { false, true, false, false });
@@ -140,10 +140,10 @@ namespace PacMan
                             game.TilesArray[i, j] = new Tiles(WallsTileTex, tilePos, WallTiles[3, 3], new bool[] { true, true, true, true });
                             break;
                         case '1':
-                            game.TilesArray[i, j] = new Tiles(EmptyTileTex, tilePos, true);
+                            game.TilesArray[i, j] = new Tiles(EmptyTileTex, tilePos, true, new bool[]{true, false, false, false});
                             break;
                         default:
-                            game.TilesArray[i, j] = new Tiles(EmptyTileTex, tilePos, false);
+                            game.TilesArray[i, j] = new Tiles(EmptyTileTex, tilePos, false, new bool[] { false, false, false, false });
                             break;
                     }
                 }

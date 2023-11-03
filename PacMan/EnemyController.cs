@@ -10,25 +10,13 @@ using System.Threading.Channels;
 
 namespace PacMan
 {
-    internal class EnemyController
+    internal class EnemyController : Controllers
     {
-        private Animation Animation;
-        private Texture2D Tex;
+
         private Texture2D PathTile;
-        private int Index;
-        private int SecondIndexer;
-        private int IndexMultiplierFrame1;
-        private int IndexMultiplierFrame2;
-        private int DirectionIndex;
-        private int TileSize;
-        private float Speed;
-        private Vector2 Destination;
-        private Vector2 Direction;
-        private Vector2 LastLinedUpTile;
         private Vector2 LastPlayerLinedUpTile;
-        private Tiles[,] TileArray;
         private List<Node> Path;
-        public EnemyController(Animation animation, int indexer, Texture2D tex, Texture2D path, int tileSize, float speed, Tiles[,] tileArray)
+        public EnemyController(Animation animation, Texture2D tex, Texture2D path, int tileSize, float speed, Tiles[,] tileArray)
         {
             Animation = animation;
             Tex = tex;
@@ -42,61 +30,64 @@ namespace PacMan
         }
 
         //Upprepar fienders rörelse
-        public Vector2 KeepMoving(Vector2 position, Vector2 playerPos, GameTime gameTime)
+        public override Vector2 KeepMoving(Vector2 position, Vector2 playerPos, GameTime gameTime, bool released)
         {
             Vector2 newPos = position;
 
-            //Kollar att man inte försöker gå igenom en vägg
-            if (CurrentTile(LastLinedUpTile)[DirectionIndex])
-            {
-                newPos += Direction * Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-            }
-
-            //Sätter positionen till lika med nästa tile
-            if(Vector2.Distance(position, Destination) < 5)
-            {
-                newPos = Destination;
-            }
-           
-
-            //Kollar att fienden och spelaren är upplinad med en ruta
-            ChecklinedUp(position, playerPos);
-
-            //Tar bort nodes från path efterhand som de används
-            if(Path.Count != 0)
-            {
-                if (Path[0].Pos == LastLinedUpTile)
-                {
-                    Path.RemoveAt(0);
-                }
-            }
-
-            //Sätter movement till vilket håll pathen är
-            if (Path.Count != 0 && position == LastLinedUpTile)
+            if (released)
             {
 
-                if (Path[0].Pos.X > LastLinedUpTile.X)
+                //Kollar att man inte försöker gå igenom en vägg
+                if (CurrentTile(LastLinedUpTile)[DirectionIndex])
                 {
-                    Movement(new Vector2(1, 0), position);
-                    DirectionIndex = 1;
+                    newPos += Direction * Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
                 }
-                else if (Path[0].Pos.X < LastLinedUpTile.X)
+
+                //Sätter positionen till lika med nästa tile
+                if (Vector2.Distance(position, Destination) < 5)
                 {
-                    Movement(new Vector2(-1, 0), position);
-                    DirectionIndex = 3;
+                    newPos = Destination;
                 }
-                else if (Path[0].Pos.Y > LastLinedUpTile.Y)
+
+
+                //Kollar att fienden och spelaren är upplinad med en ruta
+                ChecklinedUp(position, playerPos);
+
+                //Tar bort nodes från path efterhand som de används
+                if (Path.Count != 0)
                 {
-                    Movement(new Vector2(0, 1), position);
-                    DirectionIndex = 2;
+                    if (Path[0].Pos == LastLinedUpTile)
+                    {
+                        Path.RemoveAt(0);
+                    }
                 }
-                else if (Path[0].Pos.Y < LastLinedUpTile.Y)
+
+                //Sätter movement till vilket håll pathen är
+                if (Path.Count != 0 && position == LastLinedUpTile)
                 {
-                    Movement(new Vector2(0, -1), position);
-                    DirectionIndex = 0;
+
+                    if (Path[0].Pos.X > LastLinedUpTile.X)
+                    {
+                        Movement(new Vector2(1, 0), position);
+                        DirectionIndex = 1;
+                    }
+                    else if (Path[0].Pos.X < LastLinedUpTile.X)
+                    {
+                        Movement(new Vector2(-1, 0), position);
+                        DirectionIndex = 3;
+                    }
+                    else if (Path[0].Pos.Y > LastLinedUpTile.Y)
+                    {
+                        Movement(new Vector2(0, 1), position);
+                        DirectionIndex = 2;
+                    }
+                    else if (Path[0].Pos.Y < LastLinedUpTile.Y)
+                    {
+                        Movement(new Vector2(0, -1), position);
+                        DirectionIndex = 0;
+                    }
                 }
             }
-
             return newPos;
 
 
@@ -224,7 +215,7 @@ namespace PacMan
              return finishedPath;
         }
         //Ritar fiendens animation
-        public void DrawMovement(Vector2 Pos, GameTime gameTime, SpriteBatch sb)
+        public override void DrawMovement(Vector2 Pos, GameTime gameTime, SpriteBatch sb)
         {
             switch(DirectionIndex)
             {

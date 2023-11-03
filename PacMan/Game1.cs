@@ -46,7 +46,7 @@ namespace PacMan
         {
             state = GameState.game;
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            Enemies = new Enemy[4];
+            Enemies = new Enemy[2];
 
             loadTexAndPos = new LoadTexAndPos(this);
             PointManager = new PointManager(loadTexAndPos.Font, loadTexAndPos.TransTex);
@@ -66,13 +66,13 @@ namespace PacMan
 
             for(int i = 0; i < Enemies.Length;  i++)
             {
-                if (i < 2)
+                if (i == 0)
                 {
-                    Enemies[i] = new Enemy(loadTexAndPos.TileSize, loadTexAndPos.EnemiesAndFruitTex, loadTexAndPos.PathTile, TilesArray[4,3].Pos /*loadTexAndPos.EnemyStartPos1*/, loadTexAndPos.EnemyAndFruitSprites, i, TilesArray);
+                    Enemies[i] = new Enemy(loadTexAndPos.TileSize, loadTexAndPos.EnemiesAndFruitTex, loadTexAndPos.PathTile, loadTexAndPos.EnemyStartPos1, loadTexAndPos.EnemyAndFruitSprites, i, TilesArray);
                 }
                 else 
                 {
-                    Enemies[i] = new Enemy(loadTexAndPos.TileSize, loadTexAndPos.EnemiesAndFruitTex, loadTexAndPos.PathTile, TilesArray[5,4].Pos/*loadTexAndPos.EnemyStartPos2*/, loadTexAndPos.EnemyAndFruitSprites, i, TilesArray); 
+                    Enemies[i] = new Enemy(loadTexAndPos.TileSize, loadTexAndPos.EnemiesAndFruitTex, loadTexAndPos.PathTile, loadTexAndPos.EnemyStartPos2, loadTexAndPos.EnemyAndFruitSprites, i, TilesArray); 
                 }
             }
             

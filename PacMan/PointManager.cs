@@ -80,6 +80,14 @@ namespace PacMan
                     Minutes--;
                 }
             }
+
+            if(Minutes == 4 && Seconds <= 58)
+            {
+                foreach(Enemy e in game.Enemies)
+                {
+                    e.Gates = true;
+                }
+            }
         }
     }
 }
