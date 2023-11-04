@@ -13,6 +13,7 @@ namespace PacMan
             Font = font;
         }
 
+        //Ritar ut strängen
         public override void DrawString(SpriteBatch sb)
         {
 
@@ -23,6 +24,8 @@ namespace PacMan
             sb.DrawString(Font, stringFont, StringPos, Color.White, 0f, Vector2.Zero, new Vector2(2, 2), SpriteEffects.None, 1f);
 
         }
+        //Kollar om man har tryckt enter
+
         public void CheckIfEnterPressed(Game1 game)
         {
             var KeyPressed = Keyboard.GetState();

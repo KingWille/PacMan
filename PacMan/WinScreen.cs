@@ -20,6 +20,7 @@ namespace PacMan
             Font = font;
         }
 
+        //Ritar ut strängen
         public override void DrawString(SpriteBatch sb)
         {
 
@@ -31,10 +32,13 @@ namespace PacMan
 
         }
 
+        //Uppdaterar poängen
         public void UpdatePoints(int points)
         {
             Points = points;
         }
+
+        //Kollar om man har tryckt enter
         public void CheckIfEnterPressed(Game1 game)
         {
             var KeyPressed = Keyboard.GetState();

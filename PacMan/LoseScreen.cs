@@ -15,7 +15,7 @@ namespace PacMan
             Pos = Vector2.Zero;
 
         }
-
+        //Ritar ut strängen
         public override void DrawString(SpriteBatch sb)
         {
             Vector2 measuredString = Font.MeasureString($"Total Points: {Points}\nPress Enter to restart...");
@@ -26,10 +26,13 @@ namespace PacMan
             sb.DrawString(Font, stringFont, StringPos, Color.White);
         }
 
+        //Uppdaterar poängen
         public void UpdatePoints(int points)
         {
             Points = points;
         }
+
+        //Kollar om man har tryckt enter
 
         public void CheckIfEnterPressed(Game1 game)
         {
