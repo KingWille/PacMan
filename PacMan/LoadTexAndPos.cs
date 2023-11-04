@@ -26,6 +26,9 @@ namespace PacMan
         internal Texture2D TransTex;
         internal Texture2D EnemiesAndFruitTex;
         internal Texture2D PathTile;
+        internal Texture2D EndScreen;
+        internal Texture2D WinScreen;
+        internal Texture2D StartMenu;
         internal Vector2 tilePos;
         internal Vector2 PlayerStartPos;
         internal Vector2 EnemyStartPos1;
@@ -47,6 +50,9 @@ namespace PacMan
             TransTex = game.Content.Load<Texture2D>("Transparent");
             EnemiesAndFruitTex = game.Content.Load<Texture2D>("SpriteSheetEnemiesAndFruits");
             PathTile = game.Content.Load<Texture2D>("PathTile");
+            EndScreen = game.Content.Load<Texture2D>("LoseScreen-1.png");
+            WinScreen = game.Content.Load<Texture2D>("WinScreen");
+            StartMenu = WinScreen;
 
             Font = game.Content.Load<SpriteFont>("Font");
 

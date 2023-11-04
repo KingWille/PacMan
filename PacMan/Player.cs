@@ -23,6 +23,8 @@ namespace PacMan
             PlayerAnimation = new Animation(rect, tex, texTurned);
             Controller = new PlayerController(tileSize, tileArray, Speed, PlayerAnimation);
             InputHandler = new InputHandler();
+
+            Rect = new Rectangle((int)Pos.X, (int)Pos.Y, tileSize, tileSize);
         }
         //Update metoden för spelaren
         public override void Update(GameTime gameTime, Vector2 playerPos)
@@ -52,6 +54,8 @@ namespace PacMan
             else
             {
                 Pos = Controller.KeepMoving(Pos, gameTime);
+                Rect.X = (int)Pos.X;
+                Rect.Y = (int)Pos.Y;
             }
 
             IfOutOfBound();

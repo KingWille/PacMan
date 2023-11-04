@@ -14,6 +14,9 @@ namespace PacMan
         internal Enemy[] Enemies;
         internal StandardPoint[,] standardPointsArray;
         internal PointManager PointManager;
+        internal LoseScreen loseScreen;
+        internal StartMenu startMenu;
+        internal WinScreen winScreen;
 
         internal Player player;
 
@@ -24,7 +27,8 @@ namespace PacMan
             start,
             game,
             win,
-            lose
+            lose,
+            restart
         }
 
         internal GameState state;
@@ -44,7 +48,7 @@ namespace PacMan
 
         protected override void LoadContent()
         {
-            state = GameState.game;
+            state = GameState.start;
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             Enemies = new Enemy[2];
 
@@ -59,6 +63,11 @@ namespace PacMan
             _graphics.PreferredBackBufferWidth = TilesArray.GetLength(1) * loadTexAndPos.TileSize * 2;
             _graphics.PreferredBackBufferHeight = TilesArray.GetLength(0) * loadTexAndPos.TileSize * 2;
             _graphics.ApplyChanges();
+
+            loseScreen = new LoseScreen(loadTexAndPos.EndScreen, loadTexAndPos.Font, PointManager.Points);
+            startMenu = new StartMenu(loadTexAndPos.StartMenu, loadTexAndPos.Font);
+            winScreen = new WinScreen(loadTexAndPos.WinScreen, loadTexAndPos.Font);
+            
 
             WindowSize = new Vector2(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
 
@@ -89,7 +98,7 @@ namespace PacMan
             switch(state)
             {
                 case GameState.start:
-                    GameStateHandler.UpdateStart();
+                    GameStateHandler.UpdateStart(this);
                     break;
                 case GameState.game:
                     GameStateHandler.UpdateGame(this, gameTime);
@@ -98,7 +107,10 @@ namespace PacMan
                     GameStateHandler.UpdateWin(this, gameTime);
                     break;
                 case GameState.lose:
-                    GameStateHandler.UpdateLoss();
+                    GameStateHandler.UpdateLoss(this);
+                    break;
+                case GameState.restart:
+                    LoadContent(); 
                     break;
             }
 
@@ -114,16 +126,16 @@ namespace PacMan
             switch (state)
             {
                 case GameState.start:
-                    GameStateHandler.DrawStart();
+                    GameStateHandler.DrawStart(this);
                     break;
                 case GameState.game:
                     GameStateHandler.DrawGame(this, gameTime);
                     break;
                 case GameState.win:
-                    GameStateHandler.DrawWin();
+                    GameStateHandler.DrawWin(this);
                     break;
                 case GameState.lose:
-                    GameStateHandler.DrawLoss();
+                    GameStateHandler.DrawLoss(this);
                     break;
             }
 

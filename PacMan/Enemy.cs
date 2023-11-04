@@ -34,10 +34,15 @@ namespace PacMan
                 Controller = new EnemyControllerRandom(animation, Tex, tileArray, Speed, tileSize);
             }
 
+            Rect = new Rectangle((int)Pos.X, (int)Pos.Y, tileSize, tileSize);
+
+
         }
         public override void Update(GameTime gameTime, Vector2 playerPos)
         {
             Pos = Controller.KeepMoving(Pos, playerPos, gameTime, Gates);
+            Rect.X = (int)Pos.X;
+            Rect.Y = (int)Pos.Y;
         }
         public override void Draw(SpriteBatch sb, GameTime gameTime)
         {

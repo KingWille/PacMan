@@ -11,6 +11,7 @@ namespace PacMan
     {
         internal Vector2 Pos;
         internal Texture2D Tex;
+        internal Rectangle Rect;
         internal float Speed;
 
         public abstract void Update(GameTime gameTime, Vector2 playerPos);

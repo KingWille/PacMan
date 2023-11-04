@@ -23,15 +23,17 @@ namespace PacMan
         }
         public static void UpdateWin(Game1 game, GameTime gameTime)
         {
-
+            game.winScreen.Update();
         }
-        public static void UpdateLoss()
+        public static void UpdateLoss(Game1 game)
         {
-
+            game.loseScreen.Update();
+            game.loseScreen.CheckIfEnterPressed(game);
         }
-        public static void UpdateStart()
+        public static void UpdateStart(Game1 game)
         {
-
+            game.startMenu.Update();
+            game.startMenu.CheckIfEnterPressed(game);
         }
         public static void DrawGame(Game1 game, GameTime gameTime)
         {
@@ -55,17 +57,17 @@ namespace PacMan
                 game.Enemies[i].Draw(game._spriteBatch, gameTime);
             }
         }
-        public static void DrawWin()
+        public static void DrawWin(Game1 game)
         {
-
+            game.winScreen.Draw(game._spriteBatch);
         }
-        public static void DrawLoss()
+        public static void DrawLoss(Game1 game)
         {
-
+            game.loseScreen.Draw(game._spriteBatch);
         }
-        public static void DrawStart()
+        public static void DrawStart(Game1 game)
         {
-
+            game.startMenu.Draw(game._spriteBatch);
         }
     }
 }
