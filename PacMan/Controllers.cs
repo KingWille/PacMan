@@ -20,8 +20,10 @@ namespace PacMan
         protected int DirectionIndex;
         protected int TileSize;
         protected float Speed;
+        protected bool Ghost;
+        protected bool Eaten;
 
-        public virtual Vector2 KeepMoving(Vector2 pos, Vector2 playerPos, GameTime gameTime, bool released)
+        public virtual Vector2 KeepMoving(Vector2 pos, Vector2 playerPos, GameTime gameTime, bool released, bool ghost, bool eaten)
         {
             return Vector2.Zero;
         }

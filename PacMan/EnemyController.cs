@@ -30,8 +30,11 @@ namespace PacMan
         }
 
         //Upprepar fienders rörelse
-        public override Vector2 KeepMoving(Vector2 position, Vector2 playerPos, GameTime gameTime, bool released)
+        public override Vector2 KeepMoving(Vector2 position, Vector2 playerPos, GameTime gameTime, bool released, bool ghost, bool eaten)
         {
+            Ghost = ghost;
+            Eaten = eaten;
+
             Vector2 newPos = position;
 
             if (released)
@@ -217,35 +220,50 @@ namespace PacMan
         //Ritar fiendens animation
         public override void DrawMovement(Vector2 Pos, GameTime gameTime, SpriteBatch sb)
         {
-            switch(DirectionIndex)
+            if (!Ghost && !Eaten)
             {
-                case 0:
-                    IndexMultiplierFrame1 = 4;
-                    IndexMultiplierFrame2 = 5;
-                    break;
-                case 1:
-                    IndexMultiplierFrame1 = 0;
-                    IndexMultiplierFrame2 = 1;
-                    break;
-                case 2:
-                    IndexMultiplierFrame1 = 6;
-                    IndexMultiplierFrame2 = 7;
-                    break;
-                case 3:
-                    IndexMultiplierFrame1 = 2;
-                    IndexMultiplierFrame2 = 3;
-                    break;
-            }
+                switch (DirectionIndex)
+                {
+                    case 0:
+                        IndexMultiplierFrame1 = 4;
+                        IndexMultiplierFrame2 = 5;
+                        break;
+                    case 1:
+                        IndexMultiplierFrame1 = 0;
+                        IndexMultiplierFrame2 = 1;
+                        break;
+                    case 2:
+                        IndexMultiplierFrame1 = 6;
+                        IndexMultiplierFrame2 = 7;
+                        break;
+                    case 3:
+                        IndexMultiplierFrame1 = 2;
+                        IndexMultiplierFrame2 = 3;
+                        break;
+                }
 
-            SecondIndexer = Animation.RunAnimation(gameTime);
-            
-            if(SecondIndexer == 0)
+
+                SecondIndexer = Animation.RunAnimation(gameTime);
+                Index = 0;
+
+                if (SecondIndexer == 0)
+                {
+                    sb.Draw(Tex, Pos, Animation.Rects2[Index, (SecondIndexer + 1) * IndexMultiplierFrame1], Color.White, 0f, Vector2.Zero, new Vector2(1, 1), SpriteEffects.None, 1f);
+                }
+                else
+                {
+                    sb.Draw(Tex, Pos, Animation.Rects2[Index, SecondIndexer * IndexMultiplierFrame2], Color.White, 0f, Vector2.Zero, new Vector2(1, 1), SpriteEffects.None, 1f);
+                }
+            }
+            else if(!Eaten)
             {
-                sb.Draw(Tex, Pos, Animation.Rects2[Index, (SecondIndexer + 1) * IndexMultiplierFrame1], Color.White, 0f, Vector2.Zero, new Vector2(1, 1), SpriteEffects.None, 1f);
+                Index = 4;
+                sb.Draw(Tex, Pos, Animation.Rects2[Index, Animation.RunAnimation(gameTime)], Color.White, 0f, Vector2.Zero, Vector2.One, SpriteEffects.None, 1f);
             }
             else
             {
-                sb.Draw(Tex, Pos, Animation.Rects2[Index, SecondIndexer * IndexMultiplierFrame2], Color.White, 0f, Vector2.Zero, new Vector2(1, 1), SpriteEffects.None, 1f);
+                Index = 4;
+                sb.Draw(Tex, Pos, Animation.Rects2[Index, 7], Color.White, 0f, Vector2.Zero, Vector2.One, SpriteEffects.None, 1f);
             }
 
             foreach(Node n in Path)
@@ -328,6 +346,7 @@ namespace PacMan
                         LastPlayerLinedUpTile = TileArray[i, j].Pos;
                         Path = CheckAvailablePaths(LastLinedUpTile, LastPlayerLinedUpTile);
                         break;
+
                     }
                 }
             }

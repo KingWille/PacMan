@@ -15,6 +15,8 @@ namespace PacMan
         private Random rnd;
         private int Indexer;
         internal bool Gates;
+        internal bool Ghost;
+        internal bool Eaten;
         public Enemy(int tileSize, Texture2D tex, Texture2D path, Vector2 pos, Rectangle[,] sprites, int indexer, Tiles[,] tileArray)
         {
             this.Pos = pos;
@@ -24,6 +26,8 @@ namespace PacMan
             Speed = (float)rnd.Next(100, 150);
             animation = new Animation(sprites, tex);
             Gates = false;
+            Ghost = false;
+            Eaten = false;
 
             if(indexer == 0)
             {
@@ -38,9 +42,9 @@ namespace PacMan
 
 
         }
-        public override void Update(GameTime gameTime, Vector2 playerPos)
+        public override void Update(GameTime gameTime, Vector2 playerPos, bool invurnability)
         {
-            Pos = Controller.KeepMoving(Pos, playerPos, gameTime, Gates);
+            Pos = Controller.KeepMoving(Pos, playerPos, gameTime, Gates, Ghost, Eaten);
             Rect.X = (int)Pos.X;
             Rect.Y = (int)Pos.Y;
         }

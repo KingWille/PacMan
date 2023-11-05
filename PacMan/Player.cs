@@ -27,7 +27,7 @@ namespace PacMan
             Rect = new Rectangle((int)Pos.X, (int)Pos.Y, tileSize, tileSize);
         }
         //Update metoden för spelaren
-        public override void Update(GameTime gameTime, Vector2 playerPos)
+        public override void Update(GameTime gameTime, Vector2 playerPos, bool invurnability)
         {
             InputHandler.GetState();
             
@@ -53,7 +53,7 @@ namespace PacMan
             }
             else
             {
-                Pos = Controller.KeepMoving(Pos, gameTime);
+                Pos = Controller.KeepMoving(Pos, gameTime, invurnability);
                 Rect.X = (int)Pos.X;
                 Rect.Y = (int)Pos.Y;
             }

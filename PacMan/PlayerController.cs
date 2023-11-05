@@ -14,19 +14,17 @@ namespace PacMan
     {
         internal bool CanMove;
         internal bool CanTurn;
-        private bool Wall;
-
-        private SpriteEffects SE;
         internal InputHandler inputHandler;
 
-        private float Speed;
+        private bool Invurnability;
+        private SpriteEffects SE;
+
 
         public PlayerController(int tileSize, Tiles[,] tileArray, float speed, Animation animation)
         {
             TileSize = tileSize;
             CanMove = true;
             CanTurn = true;
-            Wall = false;
             Speed = speed;
 
             Animation = animation;
@@ -88,8 +86,9 @@ namespace PacMan
         }
 
         //Upprepar pacmans rörelse när man inte bytar riktning
-        public Vector2 KeepMoving(Vector2 position, GameTime gameTime)
+        public Vector2 KeepMoving(Vector2 position, GameTime gameTime, bool invurnability)
         {
+            Invurnability = invurnability;
             Vector2 newPos = position;
 
             //Kollar att där inte är en vägg i vägen
@@ -165,8 +164,9 @@ namespace PacMan
             return TileArray[(int)position.Y / (TileSize * 2), (int)position.X / (TileSize * 2)].AllowedDirections;
         }
 
-        public void DrawMovement(Vector2 Pos, GameTime gameTime, SpriteBatch sb) 
+        public override void DrawMovement(Vector2 Pos, GameTime gameTime, SpriteBatch sb) 
         {
+            //Vänder på pacmans animation beroende på vilken riktning har går
             switch(DirectionIndex)
             {
                 case 0:
@@ -187,7 +187,16 @@ namespace PacMan
                     break;
             }
 
-            sb.Draw(Tex, Pos, Animation.Rects[Animation.RunAnimation(gameTime)], Color.White, 0f, Vector2.Zero, new Vector2(1, 1), SE, 1f);
+            //Kollar om han har nyligen blivit träffad av ett spöke
+            if(!Invurnability)
+            {
+                sb.Draw(Tex, Pos, Animation.Rects[Animation.RunAnimation(gameTime)], Color.White, 0f, Vector2.Zero, new Vector2(1, 1), SE, 1f);
+            }
+            else 
+            {
+                sb.Draw(Tex, Pos, Animation.Rects[Animation.RunAnimation(gameTime)], Color.Gray, 0f, Vector2.Zero, new Vector2(1, 1), SE, 1f);
+            }
+
         }
     }
 }

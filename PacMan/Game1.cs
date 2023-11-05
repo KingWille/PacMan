@@ -17,6 +17,7 @@ namespace PacMan
         internal LoseScreen loseScreen;
         internal StartMenu startMenu;
         internal WinScreen winScreen;
+        internal LevelEditor levelEditor;
 
         internal Player player;
 
@@ -26,9 +27,10 @@ namespace PacMan
         {
             start,
             game,
+            game2,
             win,
             lose,
-            restart
+            restart,
         }
 
         internal GameState state;
@@ -57,8 +59,8 @@ namespace PacMan
 
             loadTexAndPos.LoadMap(this);
             loadTexAndPos.LoadPlayerSpritesAndPos(TilesArray);
-            loadTexAndPos.LoadPoints(TilesArray, PointManager);
             loadTexAndPos.LoadEnemyAndFruitSpritesAndEnemyPos(TilesArray);
+            loadTexAndPos.LoadPoints(TilesArray, PointManager);
 
             _graphics.PreferredBackBufferWidth = TilesArray.GetLength(1) * loadTexAndPos.TileSize * 2;
             _graphics.PreferredBackBufferHeight = TilesArray.GetLength(0) * loadTexAndPos.TileSize * 2;
@@ -67,6 +69,7 @@ namespace PacMan
             loseScreen = new LoseScreen(loadTexAndPos.EndScreen, loadTexAndPos.Font, PointManager.Points);
             startMenu = new StartMenu(loadTexAndPos.StartMenu, loadTexAndPos.Font);
             winScreen = new WinScreen(loadTexAndPos.WinScreen, loadTexAndPos.Font);
+            levelEditor = new LevelEditor(loadTexAndPos.WallsTileTex, loadTexAndPos.WallTiles);
             
 
             WindowSize = new Vector2(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
@@ -103,6 +106,10 @@ namespace PacMan
                 case GameState.game:
                     GameStateHandler.UpdateGame(this, gameTime);
                     break;
+                case GameState.game2:
+                    loadTexAndPos.LoadMap2(this);
+                    GameStateHandler.UpdateGame(this, gameTime);
+                    break;
                 case GameState.win:
                     GameStateHandler.UpdateWin(this, gameTime);
                     break;
@@ -129,6 +136,9 @@ namespace PacMan
                     GameStateHandler.DrawStart(this);
                     break;
                 case GameState.game:
+                    GameStateHandler.DrawGame(this, gameTime);
+                    break;
+                case GameState.game2:
                     GameStateHandler.DrawGame(this, gameTime);
                     break;
                 case GameState.win:

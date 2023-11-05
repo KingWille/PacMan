@@ -12,18 +12,19 @@ namespace PacMan
     {
         public static void UpdateGame(Game1 game, GameTime gameTime)
         {
-            game.player.Update(gameTime, game.player.Pos);
+            game.player.Update(gameTime, game.player.Pos, game.PointManager.Invurnability);
             game.PointManager.Update(game.player.Pos, game, gameTime);
 
             foreach(Enemy e in game.Enemies)
             {
-                e.Update(gameTime, game.player.Pos);
+                e.Update(gameTime, game.player.Pos, game.PointManager.Invurnability);
             }
             
         }
         public static void UpdateWin(Game1 game, GameTime gameTime)
         {
             game.winScreen.Update();
+            game.winScreen.CheckIfEnterPressed(game);
         }
         public static void UpdateLoss(Game1 game)
         {
@@ -34,6 +35,10 @@ namespace PacMan
         {
             game.startMenu.Update();
             game.startMenu.CheckIfEnterPressed(game);
+        }
+        public static void UpdateLevelEditor(Game1 game)
+        {
+            
         }
         public static void DrawGame(Game1 game, GameTime gameTime)
         {
@@ -68,6 +73,10 @@ namespace PacMan
         public static void DrawStart(Game1 game)
         {
             game.startMenu.Draw(game._spriteBatch);
+        }
+        public static void DrawLevelEditor(Game1 game)
+        {
+            game.levelEditor.Draw(game._spriteBatch);
         }
     }
 }

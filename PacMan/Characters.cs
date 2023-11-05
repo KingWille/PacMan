@@ -14,7 +14,7 @@ namespace PacMan
         internal Rectangle Rect;
         internal float Speed;
 
-        public abstract void Update(GameTime gameTime, Vector2 playerPos);
+        public abstract void Update(GameTime gameTime, Vector2 playerPos, bool invurnability);
         public abstract void Draw(SpriteBatch sb, GameTime gameTime);
     }
 }
